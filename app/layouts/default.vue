@@ -147,7 +147,8 @@ await refresh()
 
 const appVersion = computed(() => {
   if (!versionData.value) return ''
-  return me.value?.role === 'super_admin' ? `${versionData.value.date} - ${versionData.value.build}` : versionData.value.date
+  // 총관리자·부관리자 모두 날짜와 빌드 번호를 함께 표시한다.
+  return `${versionData.value.date} - ${versionData.value.build}`
 })
 
 const { unread, toast, refreshUnread, startUnreadPolling, stopUnreadPolling } = useMessages()
