@@ -87,7 +87,7 @@
               <td class="px-[10px] py-3 text-right font-data text-slate-300">x{{ t.leverage }}</td>
               <td class="px-[10px] py-3 text-right font-data text-slate-200">{{ fmtPrice(t.price) }}</td>
               <td class="px-[10px] py-3 text-right font-data text-slate-200">{{ fmt2(t.qty) }}</td>
-              <td class="px-[10px] py-3 text-right font-data-plain" :class="t.pnl >= 0 ? 'text-emerald-400' : 'text-blue-400'">
+              <td class="px-[10px] py-3 text-right font-data-plain" :class="t.pnl >= 0 ? 'text-blue-400' : 'text-red-500'">
                 {{ t.pnl >= 0 ? '+' : '' }}{{ fmt2(t.pnl) }}
               </td>
               <td class="px-[10px] py-3 text-right font-data text-slate-300">{{ fmt2(t.fee) }}</td>
