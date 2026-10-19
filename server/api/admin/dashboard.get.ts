@@ -1,4 +1,5 @@
 import { requireAdmin } from '../../utils/auth'
+import { canViewMenu } from '../../utils/menu-permissions'
 import { supabaseAppDbEnabled } from '../../utils/supa-appdb'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { listDepositRequests } from '../../utils/deposit-requests'
@@ -25,6 +26,9 @@ export default defineEventHandler(async (event) => {
   const members = (allUsers || []).filter((u: any) => String(u.role) === 'user' && (!downline || downline.has(String(u.username))))
   const memberIds = members.map((u: any) => Number(u.id)).filter(Boolean)
   const memberById = new Map<number, any>(members.map((u: any) => [Number(u.id), u]))
+  const userById = new Map<number, any>((allUsers || []).map((u: any) => [Number(u.id), u]))
+  // 거래내역 메뉴를 볼 수 있는 관리자는 거래 요약에 전체 거래를 반영한다(거래 내역 페이지가 보여주는 범위와 동일).
+  const allTradesVisible = admin.role === 'super_admin' || canViewMenu(admin, 'trades')
   const referralOf = new Map<string, string>((allUsers || []).map((u: any) => [String(u.username || ''), String(u.referral_code || '')]))
 
   const now = Date.now()
@@ -57,7 +61,7 @@ export default defineEventHandler(async (event) => {
     if (error) throw error
     const rows = data || []
     for (const t of rows as any[]) {
-      if (!memberSet.has(Number(t.user_id))) continue
+      if (!allTradesVisible && !memberSet.has(Number(t.user_id))) continue
       const pnl = Number(t.pnl || 0)
       pnlAll += pnl
       if (new Date(String(t.created_at)).getTime() >= weekAgo) {
@@ -75,14 +79,13 @@ export default defineEventHandler(async (event) => {
     .select('id, user_id, symbol, side, qty, entry_price, exit_price, leverage, pnl, created_at')
     .order('created_at', { ascending: false })
     .limit(10)
-  if (downline) recentQuery = recentQuery.in('user_id', memberIds.length ? memberIds : [0])
+  if (!allTradesVisible) recentQuery = recentQuery.in('user_id', memberIds.length ? memberIds : [0])
   const { data: recentRows, error: e3 } = await recentQuery
   if (e3) throw e3
   const recentTrades = ((recentRows || []) as any[])
-    .filter((t) => memberSet.has(Number(t.user_id)) || admin.role === 'super_admin')
     .map((t) => ({
       id: Number(t.id),
-      username: String((allUsers || []).find((u: any) => Number(u.id) === Number(t.user_id))?.username || `#${t.user_id}`),
+      username: String(userById.get(Number(t.user_id))?.username || `#${t.user_id}`),
       symbol: String(t.symbol || ''),
       side: String(t.side || ''),
       pnl: Number(t.pnl || 0),
