@@ -38,16 +38,21 @@
             {{ t(item.ko, item.en) }}
           </NuxtLink>
 
-          <div ref="moreRoot" class="relative">
-            <button
-              type="button"
-              class="rounded-md px-3 py-1.5 transition hover:bg-cyan-400/10 hover:text-white"
-              :class="moreOpen ? 'bg-cyan-400/10 text-white' : ''"
-              @click="moreOpen = !moreOpen"
-            >
-              {{ t('기타', 'More') }} ▾
-            </button>
-            <div v-if="moreOpen" class="absolute left-0 top-full z-50 mt-2 min-w-[200px] rounded-xl border border-cyan-500/10 bg-[#03101d] p-2 shadow-[0_20px_40px_rgba(0,0,0,0.35)]">
+          <button
+            ref="moreBtn"
+            type="button"
+            class="rounded-md px-3 py-1.5 transition hover:bg-cyan-400/10 hover:text-white"
+            :class="moreOpen ? 'bg-cyan-400/10 text-white' : ''"
+            @click="toggleMore"
+          >
+            {{ t('기타', 'More') }} ▾
+          </button>
+        </nav>
+        <div v-else class="flex-1" />
+
+        <!-- 가로 메뉴(overflow)에 잘리지 않도록 body로 빼서 화면 기준 위치에 띄운다 -->
+        <Teleport to="body">
+          <div v-if="moreOpen && isAdmin" ref="morePanel" class="fixed z-[100] min-w-[220px] rounded-xl border border-cyan-500/10 bg-[#03101d] p-2 shadow-[0_20px_40px_rgba(0,0,0,0.35)]" :style="{ top: morePos.top + 'px', left: morePos.left + 'px' }">
               <NuxtLink
                 v-for="item in moreItems"
                 :key="item.to"
@@ -84,10 +89,8 @@
               >
                 {{ t('빗타이거 사이트 열기 ↗', 'Open BITTIGERS ↗') }}
               </a>
-            </div>
           </div>
-        </nav>
-        <div v-else class="flex-1" />
+        </Teleport>
 
         <div class="flex shrink-0 items-center gap-2 text-[15px]">
           <span v-if="appVersion" class="hidden rounded-md border border-cyan-500/10 bg-cyan-500/5 px-2 py-1 font-mono text-[13px] text-slate-300 lg:inline">
@@ -173,30 +176,14 @@ type NavItem = { to: string; ko: string; en: string }
 const ADMIN_MENU_ITEMS: Record<string, NavItem> = {
   members: { to: '/admin/members', ko: '회원 목록', en: 'Members' },
   online: { to: '/admin/online', ko: '실시간 접속', en: 'Online Now' },
+  deposits: { to: '/admin/deposits', ko: '입출금 내역', en: 'Deposits/Withdrawals' },
   trades: { to: '/admin/trades', ko: '거래 내역', en: 'Trade History' },
   positions: { to: '/admin/positions', ko: '포지션 목록', en: 'Positions' },
   messages: { to: '/admin/messages', ko: '쪽지관리', en: 'Messages' },
-  settlement: { to: '/admin/settlement', ko: '정산내역', en: 'Settlement' },
-  deposits: { to: '/admin/deposits', ko: '입출금 내역', en: 'Deposits/Withdrawals' }
+  settlement: { to: '/admin/settlement', ko: '정산내역', en: 'Settlement' }
 }
-const DEFAULT_ADMIN_MENU_ORDER = Object.keys(ADMIN_MENU_ITEMS)
-const orderedKeys = ref<string[]>([...DEFAULT_ADMIN_MENU_ORDER])
-
-// 메뉴 순서는 총관리자가 대시보드 "메뉴 순서" 설정에서 정한 값을 그대로 따른다(빗덕과 동일 설정 공유).
-async function loadAdminMenuOrder() {
-  if (!isAdmin.value) return
-  try {
-    const headers = import.meta.server ? useRequestHeaders(['cookie']) : undefined
-    const data = await $fetch<{ order: string[] }>('/api/admin/menu-order', { headers, credentials: 'include' })
-    const known = new Set(DEFAULT_ADMIN_MENU_ORDER)
-    const fromServer = (data.order || []).filter((k) => known.has(k))
-    const missing = DEFAULT_ADMIN_MENU_ORDER.filter((k) => !fromServer.includes(k))
-    orderedKeys.value = [...fromServer, ...missing]
-  } catch {
-    // 기본 순서 유지
-  }
-}
-if (isAdmin.value) await loadAdminMenuOrder()
+// 이 사이트의 상단 메뉴 순서는 위 ADMIN_MENU_ITEMS 선언 순서로 고정한다.
+const orderedKeys = ref<string[]>(Object.keys(ADMIN_MENU_ITEMS))
 
 const navItems = computed<NavItem[]>(() => {
   const list: NavItem[] = []
@@ -222,9 +209,23 @@ function isActive(to: string) {
 }
 
 const moreOpen = ref(false)
-const moreRoot = ref<HTMLElement | null>(null)
+const moreBtn = ref<HTMLElement | null>(null)
+const morePanel = ref<HTMLElement | null>(null)
+const morePos = ref({ top: 0, left: 0 })
+function toggleMore() {
+  if (moreOpen.value) {
+    moreOpen.value = false
+    return
+  }
+  const r = moreBtn.value?.getBoundingClientRect()
+  if (r) morePos.value = { top: r.bottom + 6, left: Math.max(8, Math.min(r.left, window.innerWidth - 236)) }
+  moreOpen.value = true
+}
 function onDocClick(e: MouseEvent) {
-  if (moreOpen.value && moreRoot.value && !moreRoot.value.contains(e.target as Node)) moreOpen.value = false
+  if (!moreOpen.value) return
+  const t = e.target as Node
+  if (moreBtn.value?.contains(t) || morePanel.value?.contains(t)) return
+  moreOpen.value = false
 }
 onMounted(() => document.addEventListener('click', onDocClick))
 onBeforeUnmount(() => document.removeEventListener('click', onDocClick))

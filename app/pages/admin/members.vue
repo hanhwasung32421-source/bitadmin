@@ -6,7 +6,7 @@
         <p class="mt-1 text-sm text-slate-400">{{ t('회원 목록을 조회합니다.', 'View the member list.') }}</p>
       </div>
       <div class="rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-100">
-        {{ t('총 보유금액', 'Total Balance') }} <span class="font-data text-base font-semibold">{{ fmt2(totalBalance) }}</span> USDT
+        {{ t('총 보유금액', 'Total Balance') }} <span class="font-data text-base font-semibold">{{ fmtBal(totalBalance) }}</span>
       </div>
     </div>
 
@@ -100,9 +100,9 @@
                   class="rounded bg-cyan-500/10 px-2 py-1 text-cyan-100 ring-1 ring-cyan-400/20 hover:bg-cyan-500/15"
                   @click="openBalanceModal(u)"
                 >
-                  {{ fmt2(u.balanceUsdt) }}
+                  {{ fmtBal(u.balanceUsdt) }}
                 </button>
-                <span v-else class="px-2 py-1 text-slate-300">{{ fmt2(u.balanceUsdt) }}</span>
+                <span v-else class="px-2 py-1 text-slate-300">{{ fmtBal(u.balanceUsdt) }}</span>
               </td>
               <td class="whitespace-nowrap px-3 py-3 text-right font-data">
                 <button
@@ -172,7 +172,7 @@
             <div>
               <h2 class="text-lg font-semibold text-slate-100">{{ t(`${selectedMember.name} 거래내역`, `${selectedMember.name} Trade History`) }}</h2>
               <p class="mt-1 text-sm text-slate-400">
-                {{ t('아이디', 'Username') }} `{{ selectedMember.username }}` · {{ t('현재 보유금액', 'Current Balance') }} {{ fmt2(selectedMember.balanceUsdt) }} USDT
+                {{ t('아이디', 'Username') }} `{{ selectedMember.username }}` · {{ t('현재 보유금액', 'Current Balance') }} {{ fmtBal(selectedMember.balanceUsdt) }}
               </p>
             </div>
             <button type="button" class="rounded-md bg-white/10 px-3 py-2 text-sm text-slate-100 hover:bg-white/15" @click="closeTradeModal">{{ t('닫기', 'Close') }}</button>
@@ -469,6 +469,18 @@ function dateOnly(v: string) {
   const s = String(v || '')
   return s ? s.slice(0, 10) : ''
 }
+// 보유금액은 원화로 표시한다(환율을 못 불러오면 USDT로 대체 표시).
+const krwPerUsdt = ref(0)
+function fmtBal(usdt: number) {
+  const n = Number(usdt || 0)
+  if (krwPerUsdt.value > 0) return Math.round(n * krwPerUsdt.value).toLocaleString('ko-KR') + t('원', ' KRW')
+  return fmt2(n) + ' USDT'
+}
+async function loadKrwRate() {
+  const res = await $fetch<{ rate: number }>('/api/settings/krw-rate').catch(() => null)
+  krwPerUsdt.value = Number(res?.rate || 0)
+}
+
 function fmt2(v: number) {
   return Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
@@ -512,8 +524,9 @@ type SortKey =
   | 'created_at'
   | 'last_login'
   | 'online'
-const sortKey = ref<SortKey | null>(null)
-const sortDir = ref<'asc' | 'desc'>('asc')
+// 기본 정렬: 보유금액 내림차순
+const sortKey = ref<SortKey | null>('balanceUsdt')
+const sortDir = ref<'asc' | 'desc'>('desc')
 
 function toggleSort(key: SortKey) {
   if (sortKey.value === key) {
@@ -701,6 +714,7 @@ async function saveBalance() {
 }
 
 onMounted(async () => {
+  loadKrwRate().catch(() => {})
   await loadRoles()
   await load()
   pollTimer = setInterval(() => {
