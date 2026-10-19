@@ -166,7 +166,7 @@ onBeforeUnmount(() => {
 const isAdmin = computed(() => !!me.value?.role && me.value.role !== 'user')
 const isSuper = computed(() => me.value?.role === 'super_admin')
 // 대시보드(/admin)는 총관리자 전용. 부관리자는 회원 목록으로 바로 이동.
-const homeTarget = computed(() => (isSuper.value ? '/admin' : isAdmin.value ? '/admin/members' : '/admin/login'))
+const homeTarget = computed(() => (isAdmin.value ? '/admin/dashboard' : '/admin/login'))
 
 function canViewAdminMenu(key: string) {
   if (isSuper.value) return true
@@ -188,7 +188,9 @@ const orderedKeys = ref<string[]>(Object.keys(ADMIN_MENU_ITEMS))
 
 const navItems = computed<NavItem[]>(() => {
   const list: NavItem[] = []
-  if (isSuper.value) list.push({ to: '/admin', ko: '대시보드', en: 'Dashboard' })
+  list.push({ to: '/admin/dashboard', ko: '대시보드', en: 'Dashboard' })
+  // 기존 관리자 대시보드(설정/역할/이벤트 관리 등)는 "어드민"으로 이름을 바꿔 총관리자에게만 보인다.
+  if (isSuper.value) list.push({ to: '/admin', ko: '어드민', en: 'Admin' })
   for (const key of orderedKeys.value) {
     if (canViewAdminMenu(key)) list.push(ADMIN_MENU_ITEMS[key]!)
   }

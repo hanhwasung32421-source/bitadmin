@@ -3,7 +3,7 @@
     <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 class="text-xl font-semibold">{{ t('관리자 대시보드', 'Admin Dashboard') }}</h1>
+          <h1 class="text-xl font-semibold">{{ t('어드민', 'Admin') }}</h1>
           <p class="mt-1 text-sm text-slate-400">{{ me?.username }} ({{ me?.role }})</p>
         </div>
         <NuxtLink

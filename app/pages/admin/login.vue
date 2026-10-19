@@ -37,7 +37,7 @@ async function onSubmit() {
   try {
     await $fetch('/api/admin/login', { method: 'POST', body: { username: username.value, password: password.value } })
     await refresh()
-    await navigateTo('/admin')
+    await navigateTo('/admin/dashboard')
   } catch (e: any) {
     error.value = e?.data?.statusMessage || t('로그인에 실패했습니다.', 'Login failed.')
   } finally {
