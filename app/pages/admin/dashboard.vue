@@ -1,5 +1,6 @@
 <template>
-  <div class="space-y-6">
+  <!-- xl 이상에서는 화면 높이에 맞춰 전체가 한 화면에 들어오게 하고, 넘치는 표는 각 박스 안에서 스크롤한다 -->
+  <div class="space-y-6 xl:flex xl:h-[calc(100dvh-130px)] xl:flex-col xl:space-y-0 xl:gap-6">
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
         <h1 class="text-xl font-semibold">{{ t('대시보드', 'Dashboard') }}</h1>
@@ -92,8 +93,8 @@
     </div>
 
     <!-- 입금/출금 최근 내역 -->
-    <div class="grid gap-6 xl:grid-cols-2">
-      <section v-for="blk in transferBlocks" :key="blk.key" class="min-h-[470px] rounded-xl border border-white/10 bg-[#050d1a] p-5">
+    <div class="grid gap-6 xl:min-h-[240px] xl:flex-1 xl:grid-cols-2 xl:grid-rows-[minmax(0,1fr)]">
+      <section v-for="blk in transferBlocks" :key="blk.key" class="flex min-h-[300px] flex-col rounded-xl border border-white/10 bg-[#050d1a] p-4 xl:min-h-0">
         <div class="flex items-start justify-between gap-3">
           <div>
             <h2 class="text-[15px] font-semibold text-slate-100">{{ t(blk.ko, blk.en) }}</h2>
@@ -103,9 +104,9 @@
             {{ t('더보기', 'More') }} ↗
           </NuxtLink>
         </div>
-        <div class="mt-4 overflow-x-auto">
+        <div class="mt-3 min-h-0 flex-1 overflow-auto">
           <table class="w-full text-[13px]">
-            <thead class="text-slate-400">
+            <thead class="sticky top-0 bg-[#050d1a] text-slate-400">
               <tr class="border-b border-white/10 text-left">
                 <th class="px-[10px] py-2 font-medium">{{ t('날짜', 'Date') }}</th>
                 <th class="px-[10px] py-2 font-medium">{{ t('금액', 'Amount') }}</th>
