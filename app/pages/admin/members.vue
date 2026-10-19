@@ -50,25 +50,25 @@
         <table class="w-full text-[14px] text-slate-200">
           <thead class="border-b border-[#12314a] text-[13px] text-slate-400">
             <tr>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('role')">{{ t('유저권한', 'Role') }}<span class="sort-icon">{{ sortArrow('role') || ' ⇅' }}</span></th>
-              <th class="whitespace-nowrap px-3 py-3 text-left">{{ t('승인상태', 'Approval') }}</th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('username')">{{ t('아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('name')">{{ t('회원이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('referralCode')">{{ t('추천코드', 'Referral Code') }}<span class="sort-icon">{{ sortArrow('referralCode') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('topCode')">{{ t('최상위코드', 'Top Code') }}<span class="sort-icon">{{ sortArrow('topCode') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-right" @click="toggleSort('balanceUsdt')">{{ t('보유금액', 'Balance') }}<span class="sort-icon">{{ sortArrow('balanceUsdt') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-right" @click="toggleSort('cumulativeProfit')">{{ t('누적수익', 'Cumulative PnL') }}<span class="sort-icon">{{ sortArrow('cumulativeProfit') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('created_at')">{{ t('가입일', 'Joined') }}<span class="sort-icon">{{ sortArrow('created_at') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('last_login')">{{ t('최근 접속일', 'Last Login') }}<span class="sort-icon">{{ sortArrow('last_login') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('online')">{{ t('접속여부', 'Status') }}<span class="sort-icon">{{ sortArrow('online') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('role')">{{ t('유저권한', 'Role') }}<span class="sort-icon">{{ sortArrow('role') || ' ⇅' }}</span></th>
+              <th class="whitespace-nowrap px-[10px] py-3 text-left">{{ t('승인상태', 'Approval') }}</th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('username')">{{ t('아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('name')">{{ t('회원이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('referralCode')">{{ t('추천코드', 'Referral Code') }}<span class="sort-icon">{{ sortArrow('referralCode') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('topCode')">{{ t('최상위코드', 'Top Code') }}<span class="sort-icon">{{ sortArrow('topCode') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('balanceUsdt')">{{ t('보유금액', 'Balance') }}<span class="sort-icon">{{ sortArrow('balanceUsdt') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('cumulativeProfit')">{{ t('누적수익', 'Cumulative PnL') }}<span class="sort-icon">{{ sortArrow('cumulativeProfit') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('created_at')">{{ t('가입일', 'Joined') }}<span class="sort-icon">{{ sortArrow('created_at') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('last_login')">{{ t('최근 접속일', 'Last Login') }}<span class="sort-icon">{{ sortArrow('last_login') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('online')">{{ t('접속여부', 'Status') }}<span class="sort-icon">{{ sortArrow('online') || ' ⇅' }}</span></th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="!loading && filtered.length === 0" class="border-b border-[#0d2438]">
-              <td colspan="11" class="px-3 py-8 text-center text-slate-500">{{ t('데이터가 없습니다.', 'No data available.') }}</td>
+              <td colspan="11" class="px-[10px] py-8 text-center text-slate-500">{{ t('데이터가 없습니다.', 'No data available.') }}</td>
             </tr>
             <tr v-for="u in paged" :key="u.id" class="border-b border-[#0d2438] hover:bg-white/[0.02]">
-              <td class="px-3 py-3">
+              <td class="px-[10px] py-3">
                 <select
                   v-if="canEditRoleOf(u)"
                   v-model="roleDraft[u.id]"
@@ -82,18 +82,18 @@
                 </select>
                 <span v-else class="rounded bg-white/5 px-2 py-1 text-[12px] font-semibold text-slate-100 ring-1 ring-white/10">{{ u.role }}</span>
               </td>
-              <td class="px-3 py-3">
+              <td class="px-[10px] py-3">
                 <span class="rounded bg-white/10 px-2 py-1 text-[12px] font-semibold text-slate-100 ring-1 ring-white/10">{{ t('승인', 'Approved') }}</span>
               </td>
-              <td class="whitespace-nowrap px-3 py-3 font-data text-slate-100">
+              <td class="whitespace-nowrap px-[10px] py-3 font-data text-slate-100">
                 <button type="button" class="underline-offset-4 hover:text-cyan-300 hover:underline" @click="memberInfoModal?.open(u.username)">
                   {{ u.username }}
                 </button>
               </td>
-              <td class="whitespace-nowrap px-3 py-3 text-slate-200">{{ u.name }}</td>
-              <td class="whitespace-nowrap px-3 py-3 font-data text-slate-300">{{ u.referralCode || '—' }}</td>
-              <td class="whitespace-nowrap px-3 py-3 font-data text-slate-300">{{ u.topCode || '—' }}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-right font-data">
+              <td class="whitespace-nowrap px-[10px] py-3 text-slate-200">{{ u.name }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 font-data text-slate-300">{{ u.referralCode || '—' }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 font-data text-slate-300">{{ u.topCode || '—' }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-right font-data">
                 <button
                   v-if="canEditBalance"
                   type="button"
@@ -104,7 +104,7 @@
                 </button>
                 <span v-else class="px-2 py-1 text-slate-300">{{ fmtBal(u.balanceUsdt) }}</span>
               </td>
-              <td class="whitespace-nowrap px-3 py-3 text-right font-data">
+              <td class="whitespace-nowrap px-[10px] py-3 text-right font-data">
                 <button
                   type="button"
                   class="rounded px-2 py-1 ring-1"
@@ -118,9 +118,9 @@
                   {{ signedProfitText(u.cumulativeProfit) }}
                 </button>
               </td>
-              <td class="whitespace-nowrap px-3 py-3 font-data text-slate-300">{{ dateOnly(u.created_at) }}</td>
-              <td class="whitespace-nowrap px-3 py-3 font-data text-slate-300">{{ u.last_login ? dateOnly(u.last_login) : '—' }}</td>
-              <td class="whitespace-nowrap px-3 py-3">
+              <td class="whitespace-nowrap px-[10px] py-3 font-data text-slate-300">{{ dateOnly(u.created_at) }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 font-data text-slate-300">{{ u.last_login ? dateOnly(u.last_login) : '—' }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3">
                 <span
                   class="rounded px-2 py-1 text-[12px] font-semibold ring-1"
                   :class="u.online ? 'bg-[#0c2c26] text-[#22ab94] ring-[#089981]/30' : 'bg-white/5 text-slate-300 ring-white/10'"
@@ -182,39 +182,39 @@
             <table class="min-w-full text-xs text-slate-200">
               <thead class="border-b border-[#12314a] text-[12px] text-slate-400">
                 <tr>
-                  <th class="px-3 py-3 text-left">{{ t('날짜', 'Date') }}</th>
-                  <th class="px-3 py-3 text-left">{{ t('심볼', 'Symbol') }}</th>
-                  <th class="px-3 py-3 text-left">{{ t('주문유형', 'Order Type') }}</th>
-                  <th class="px-3 py-3 text-left">{{ t('구분', 'Result') }}</th>
-                  <th class="px-3 py-3 text-right">{{ t('레버리지', 'Leverage') }}</th>
-                  <th class="px-3 py-3 text-right">{{ t('체결가격', 'Fill Price') }}</th>
-                  <th class="px-3 py-3 text-right">{{ t('체결량', 'Fill Qty') }}</th>
-                  <th class="px-3 py-3 text-right">{{ t('실현손익', 'Realized PnL') }}</th>
-                  <th class="px-3 py-3 text-right">{{ t('수수료', 'Fee') }}</th>
-                  <th class="px-3 py-3 text-left">{{ t('접속상태', 'Status') }}</th>
+                  <th class="px-[10px] py-3 text-left">{{ t('날짜', 'Date') }}</th>
+                  <th class="px-[10px] py-3 text-left">{{ t('심볼', 'Symbol') }}</th>
+                  <th class="px-[10px] py-3 text-left">{{ t('주문유형', 'Order Type') }}</th>
+                  <th class="px-[10px] py-3 text-left">{{ t('구분', 'Result') }}</th>
+                  <th class="px-[10px] py-3 text-right">{{ t('레버리지', 'Leverage') }}</th>
+                  <th class="px-[10px] py-3 text-right">{{ t('체결가격', 'Fill Price') }}</th>
+                  <th class="px-[10px] py-3 text-right">{{ t('체결량', 'Fill Qty') }}</th>
+                  <th class="px-[10px] py-3 text-right">{{ t('실현손익', 'Realized PnL') }}</th>
+                  <th class="px-[10px] py-3 text-right">{{ t('수수료', 'Fee') }}</th>
+                  <th class="px-[10px] py-3 text-left">{{ t('접속상태', 'Status') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="!tradeLoading && pagedMemberTrades.length === 0" class="border-b border-[#0d2438]">
-                  <td colspan="10" class="px-3 py-8 text-center text-slate-500">{{ t('거래 내역이 없습니다.', 'No trade history available.') }}</td>
+                  <td colspan="10" class="px-[10px] py-8 text-center text-slate-500">{{ t('거래 내역이 없습니다.', 'No trade history available.') }}</td>
                 </tr>
                 <tr v-for="tr in pagedMemberTrades" :key="tr.id" class="border-b border-[#0d2438] hover:bg-white/[0.02]">
-                  <td class="px-3 py-3 font-data text-slate-300">{{ formatDateTime(tr.created_at) }}</td>
-                  <td class="px-3 py-3 font-semibold text-slate-100">{{ tr.symbol }}</td>
-                  <td class="px-3 py-3 text-slate-200">{{ tr.orderType }}</td>
-                  <td class="px-3 py-3">
+                  <td class="px-[10px] py-3 font-data text-slate-300">{{ formatDateTime(tr.created_at) }}</td>
+                  <td class="px-[10px] py-3 font-semibold text-slate-100">{{ tr.symbol }}</td>
+                  <td class="px-[10px] py-3 text-slate-200">{{ tr.orderType }}</td>
+                  <td class="px-[10px] py-3">
                     <span class="rounded px-2 py-1 text-[12px] font-semibold ring-1" :class="tradeResultBadgeClass(tr)">
                       {{ tradeResultLabel(tr) }}
                     </span>
                   </td>
-                  <td class="px-3 py-3 text-right font-data text-slate-300">x{{ tr.leverage }}</td>
-                  <td class="px-3 py-3 text-right font-data text-slate-200">{{ fmtPrice(tr.price) }}</td>
-                  <td class="px-3 py-3 text-right font-data text-slate-200">{{ fmt2(tr.qty) }}</td>
-                  <td class="px-3 py-3 text-right font-data-plain" :class="tr.pnl >= 0 ? 'text-emerald-400' : 'text-blue-400'">
+                  <td class="px-[10px] py-3 text-right font-data text-slate-300">x{{ tr.leverage }}</td>
+                  <td class="px-[10px] py-3 text-right font-data text-slate-200">{{ fmtPrice(tr.price) }}</td>
+                  <td class="px-[10px] py-3 text-right font-data text-slate-200">{{ fmt2(tr.qty) }}</td>
+                  <td class="px-[10px] py-3 text-right font-data-plain" :class="tr.pnl >= 0 ? 'text-emerald-400' : 'text-blue-400'">
                     {{ tr.pnl >= 0 ? '+' : '' }}{{ fmt2(tr.pnl) }}
                   </td>
-                  <td class="px-3 py-3 text-right font-data text-slate-300">{{ fmt2(tr.fee) }}</td>
-                  <td class="px-3 py-3">
+                  <td class="px-[10px] py-3 text-right font-data text-slate-300">{{ fmt2(tr.fee) }}</td>
+                  <td class="px-[10px] py-3">
                     <span
                       class="rounded px-2 py-1 text-[12px] font-semibold ring-1"
                       :class="tr.online ? 'bg-[#0c2c26] text-[#22ab94] ring-[#089981]/30' : 'bg-white/5 text-slate-300 ring-white/10'"
