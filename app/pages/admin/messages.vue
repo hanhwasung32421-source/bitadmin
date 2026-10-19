@@ -67,12 +67,12 @@
             <table class="w-full text-xs">
               <thead class="sticky top-0 bg-[#06101b] text-slate-400">
                 <tr>
-                  <th class="px-2 py-2"></th>
-                  <th class="cursor-pointer select-none px-2 py-2 text-left" @click="toggleRecipientSort('id')">{{ t('아이디', 'Username') }}{{ recipientSortArrow('id') }}</th>
-                  <th class="cursor-pointer select-none px-2 py-2 text-right" @click="toggleRecipientSort('usdt')">{{ t('지갑잔액', 'Wallet Balance') }}{{ recipientSortArrow('usdt') }}</th>
-                  <th class="cursor-pointer select-none px-2 py-2 text-left" @click="toggleRecipientSort('created_at')">{{ t('가입일자', 'Joined') }}{{ recipientSortArrow('created_at') }}</th>
-                  <th class="cursor-pointer select-none px-2 py-2 text-left" @click="toggleRecipientSort('lastLoginAt')">{{ t('최근로그인', 'Last Login') }}{{ recipientSortArrow('lastLoginAt') }}</th>
-                  <th class="cursor-pointer select-none px-2 py-2 text-left" @click="toggleRecipientSort('online')">{{ t('접속상태', 'Status') }}{{ recipientSortArrow('online') }}</th>
+                  <th class="px-[6.5px] py-2"></th>
+                  <th class="cursor-pointer select-none px-[6.5px] py-2 text-left" @click="toggleRecipientSort('id')">{{ t('아이디', 'Username') }}{{ recipientSortArrow('id') }}</th>
+                  <th class="cursor-pointer select-none px-[6.5px] py-2 text-right" @click="toggleRecipientSort('usdt')">{{ t('지갑잔액', 'Wallet Balance') }}{{ recipientSortArrow('usdt') }}</th>
+                  <th class="cursor-pointer select-none px-[6.5px] py-2 text-left" @click="toggleRecipientSort('created_at')">{{ t('가입일자', 'Joined') }}{{ recipientSortArrow('created_at') }}</th>
+                  <th class="cursor-pointer select-none px-[6.5px] py-2 text-left" @click="toggleRecipientSort('lastLoginAt')">{{ t('최근로그인', 'Last Login') }}{{ recipientSortArrow('lastLoginAt') }}</th>
+                  <th class="cursor-pointer select-none px-[6.5px] py-2 text-left" @click="toggleRecipientSort('online')">{{ t('접속상태', 'Status') }}{{ recipientSortArrow('online') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -82,14 +82,14 @@
                   class="border-t border-white/5"
                   :class="sendToAll ? 'opacity-50' : 'hover:bg-white/5'"
                 >
-                  <td class="px-2 py-2">
+                  <td class="px-[6.5px] py-2">
                     <input v-model="selectedRecipientIds" :value="user.id" type="checkbox" class="rounded border-white/20 bg-white/5" :disabled="sendToAll" />
                   </td>
-                  <td class="px-2 py-2 text-slate-100">{{ user.username }}{{ user.name ? `(${user.name})` : '' }}</td>
-                  <td class="px-2 py-2 text-right font-data text-slate-300">{{ Number(user.usdt || 0).toFixed(2) }}</td>
-                  <td class="px-2 py-2 font-data text-slate-400">{{ dateOnly(user.created_at) }}</td>
-                  <td class="px-2 py-2 font-data text-slate-400">{{ user.lastLoginAt ? formatDateTime(user.lastLoginAt) : '—' }}</td>
-                  <td class="px-2 py-2">
+                  <td class="px-[6.5px] py-2 text-slate-100">{{ user.username }}{{ user.name ? `(${user.name})` : '' }}</td>
+                  <td class="px-[6.5px] py-2 text-right font-data text-slate-300">{{ Number(user.usdt || 0).toFixed(2) }}</td>
+                  <td class="px-[6.5px] py-2 font-data text-slate-400">{{ dateOnly(user.created_at) }}</td>
+                  <td class="px-[6.5px] py-2 font-data text-slate-400">{{ user.lastLoginAt ? formatDateTime(user.lastLoginAt) : '—' }}</td>
+                  <td class="px-[6.5px] py-2">
                     <span
                       class="rounded px-2 py-0.5 text-[12px] font-semibold ring-1"
                       :class="user.online ? 'bg-[#0c2c26] text-[#22ab94] ring-[#089981]/30' : 'bg-white/5 text-slate-400 ring-white/10'"
@@ -99,7 +99,7 @@
                   </td>
                 </tr>
                 <tr v-if="sortedRecipients.length === 0">
-                  <td colspan="6" class="px-2 py-6 text-center text-sm text-slate-500">{{ t('선택 가능한 회원이 없습니다.', 'No members available to select.') }}</td>
+                  <td colspan="6" class="px-[6.5px] py-6 text-center text-sm text-slate-500">{{ t('선택 가능한 회원이 없습니다.', 'No members available to select.') }}</td>
                 </tr>
               </tbody>
             </table>

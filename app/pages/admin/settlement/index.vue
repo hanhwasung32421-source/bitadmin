@@ -73,33 +73,33 @@
         <table class="min-w-full text-xs text-slate-200">
           <thead class="border-b border-[#12314a] text-[12px] text-slate-400">
             <tr>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('username')">{{ t('회원 아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('name')">{{ t('이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-right" @click="toggleSort('balanceUsdt')">{{ t('잔액', 'Balance') }}<span class="sort-icon">{{ sortArrow('balanceUsdt') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-right" @click="toggleSort('baseAmount')">{{ baseAmountLabel }}<span class="sort-icon">{{ sortArrow('baseAmount') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-right" @click="toggleSort('settlementAmount')">{{ t('정산금', 'Settlement') }}<span class="sort-icon">{{ sortArrow('settlementAmount') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('username')">{{ t('회원 아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('name')">{{ t('이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('balanceUsdt')">{{ t('잔액', 'Balance') }}<span class="sort-icon">{{ sortArrow('balanceUsdt') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('baseAmount')">{{ baseAmountLabel }}<span class="sort-icon">{{ sortArrow('baseAmount') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('settlementAmount')">{{ t('정산금', 'Settlement') }}<span class="sort-icon">{{ sortArrow('settlementAmount') || ' ⇅' }}</span></th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="!loading && pagedItems.length === 0" class="border-b border-[#0d2438]">
-              <td colspan="5" class="px-3 py-8 text-center text-slate-500">{{ t('데이터가 없습니다.', 'No data available.') }}</td>
+              <td colspan="5" class="px-[10px] py-8 text-center text-slate-500">{{ t('데이터가 없습니다.', 'No data available.') }}</td>
             </tr>
             <tr v-for="it in pagedItems" :key="it.id" class="border-b border-[#0d2438] hover:bg-white/[0.02]">
-              <td class="px-3 py-3 font-data text-slate-100">
+              <td class="px-[10px] py-3 font-data text-slate-100">
                 <button type="button" class="underline-offset-4 hover:text-cyan-300 hover:underline" @click="memberInfoModal?.open(it.username)">
                   {{ it.username }}
                 </button>
               </td>
-              <td class="px-3 py-3 text-slate-200">{{ it.name }}</td>
-              <td class="px-3 py-3 text-right font-data text-slate-200">
+              <td class="px-[10px] py-3 text-slate-200">{{ it.name }}</td>
+              <td class="px-[10px] py-3 text-right font-data text-slate-200">
                 <div>{{ fmtKrw(it.balanceUsdt) }}</div>
                 <div class="text-slate-500">({{ fmt2(it.balanceUsdt) }})</div>
               </td>
-              <td class="px-3 py-3 text-right font-data text-slate-300">
+              <td class="px-[10px] py-3 text-right font-data text-slate-300">
                 <div>{{ fmtKrw(it.baseAmount) }}</div>
                 <div class="text-slate-500">({{ fmt2(it.baseAmount) }})</div>
               </td>
-              <td class="px-3 py-3 text-right font-data text-slate-100">
+              <td class="px-[10px] py-3 text-right font-data text-slate-100">
                 <div>{{ fmtKrw(it.settlementAmount) }}</div>
                 <div class="text-slate-500">({{ fmt2(it.settlementAmount) }})</div>
               </td>

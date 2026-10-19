@@ -95,41 +95,41 @@
         <table class="w-full text-sm text-slate-200">
           <thead class="border-b border-[#12314a] text-[13px] text-slate-400">
             <tr>
-              <th v-if="isSuperAdmin" class="w-9 px-3 py-3 text-left">
+              <th v-if="isSuperAdmin" class="w-9 px-[10px] py-3 text-left">
                 <input type="checkbox" class="rounded border-white/20 bg-white/5" :checked="allPagedSelected" @change="toggleSelectAll" />
               </th>
-              <th class="sortable-th max-w-[10ch] cursor-pointer select-none truncate px-3 py-3 text-left" @click="toggleSort('username')">{{ t('회원 아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
-              <th class="sortable-th max-w-[10ch] cursor-pointer select-none truncate px-3 py-3 text-left" @click="toggleSort('name')">{{ t('회원 이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
-              <th class="sortable-th max-w-[10ch] cursor-pointer select-none truncate px-3 py-3 text-left" @click="toggleSort('topCode')">{{ t('총판 이름', 'Affiliate') }}<span class="sort-icon">{{ sortArrow('topCode') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-right" @click="toggleSort('balanceUsdt')">{{ t('잔고', 'Balance') }}<span class="sort-icon">{{ sortArrow('balanceUsdt') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-right" @click="toggleSort('krwAmount')">{{ t('입금/출금 금액', 'Amount') }}<span class="sort-icon">{{ sortArrow('krwAmount') || ' ⇅' }}</span></th>
-              <th class="sortable-th max-w-[5em] cursor-pointer select-none truncate px-3 py-3 text-right" @click="toggleSort('rateUsed')">{{ t('처리 환율', 'FX Rate') }}<span class="sort-icon">{{ sortArrow('rateUsed') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-right" @click="toggleSort('usdtAmount')">{{ t('USDT 금액', 'USDT Amount') }}<span class="sort-icon">{{ sortArrow('usdtAmount') || ' ⇅' }}</span></th>
-              <th class="sortable-th max-w-[5em] cursor-pointer select-none truncate px-3 py-3 text-center" @click="toggleSort('type')">{{ t('구분', 'Type') }}<span class="sort-icon">{{ sortArrow('type') || ' ⇅' }}</span></th>
-              <th class="sortable-th max-w-[5em] cursor-pointer select-none truncate px-3 py-3 text-center" @click="toggleSort('status')">{{ t('처리결과', 'Status') }}<span class="sort-icon">{{ sortArrow('status') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-center" @click="toggleSort('displayDate')">{{ t('처리 일시', 'Date') }}<span class="sort-icon">{{ sortArrow('displayDate') || ' ⇅' }}</span></th>
+              <th class="sortable-th max-w-[10ch] cursor-pointer select-none truncate px-[10px] py-3 text-left" @click="toggleSort('username')">{{ t('회원 아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
+              <th class="sortable-th max-w-[10ch] cursor-pointer select-none truncate px-[10px] py-3 text-left" @click="toggleSort('name')">{{ t('회원 이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
+              <th class="sortable-th max-w-[10ch] cursor-pointer select-none truncate px-[10px] py-3 text-left" @click="toggleSort('topCode')">{{ t('총판 이름', 'Affiliate') }}<span class="sort-icon">{{ sortArrow('topCode') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('balanceUsdt')">{{ t('잔고', 'Balance') }}<span class="sort-icon">{{ sortArrow('balanceUsdt') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('krwAmount')">{{ t('입금/출금 금액', 'Amount') }}<span class="sort-icon">{{ sortArrow('krwAmount') || ' ⇅' }}</span></th>
+              <th class="sortable-th max-w-[5em] cursor-pointer select-none truncate px-[10px] py-3 text-right" @click="toggleSort('rateUsed')">{{ t('처리 환율', 'FX Rate') }}<span class="sort-icon">{{ sortArrow('rateUsed') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('usdtAmount')">{{ t('USDT 금액', 'USDT Amount') }}<span class="sort-icon">{{ sortArrow('usdtAmount') || ' ⇅' }}</span></th>
+              <th class="sortable-th max-w-[5em] cursor-pointer select-none truncate px-[10px] py-3 text-center" @click="toggleSort('type')">{{ t('구분', 'Type') }}<span class="sort-icon">{{ sortArrow('type') || ' ⇅' }}</span></th>
+              <th class="sortable-th max-w-[5em] cursor-pointer select-none truncate px-[10px] py-3 text-center" @click="toggleSort('status')">{{ t('처리결과', 'Status') }}<span class="sort-icon">{{ sortArrow('status') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-center" @click="toggleSort('displayDate')">{{ t('처리 일시', 'Date') }}<span class="sort-icon">{{ sortArrow('displayDate') || ' ⇅' }}</span></th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="filteredItems.length === 0" class="border-b border-[#0d2438]">
-              <td :colspan="isSuperAdmin ? 11 : 10" class="px-3 py-8 text-center text-slate-500">{{ t('조건에 맞는 입금/출금 요청 내역이 없습니다.', 'No deposit/withdrawal requests match your filters.') }}</td>
+              <td :colspan="isSuperAdmin ? 11 : 10" class="px-[10px] py-8 text-center text-slate-500">{{ t('조건에 맞는 입금/출금 요청 내역이 없습니다.', 'No deposit/withdrawal requests match your filters.') }}</td>
             </tr>
             <tr v-for="it in paged" :key="it.id" class="border-b border-[#0d2438] hover:bg-white/[0.02]">
-              <td v-if="isSuperAdmin" class="px-3 py-3">
+              <td v-if="isSuperAdmin" class="px-[10px] py-3">
                 <input type="checkbox" class="rounded border-white/20 bg-white/5" :checked="selectedIds.includes(it.id)" @change="toggleSelectOne(it.id)" />
               </td>
-              <td class="max-w-[10ch] truncate px-3 py-3 font-data text-slate-100" :title="it.username">
+              <td class="max-w-[10ch] truncate px-[10px] py-3 font-data text-slate-100" :title="it.username">
                 <button type="button" class="truncate underline-offset-4 hover:text-cyan-300 hover:underline" @click="memberInfoModal?.open(it.username)">
                   {{ it.username }}
                 </button>
               </td>
-              <td class="max-w-[10ch] truncate px-3 py-3 text-slate-200" :title="it.name">{{ it.name }}</td>
-              <td class="max-w-[10ch] truncate px-3 py-3 font-data text-slate-300" :title="it.topCode">{{ it.topCode || '—' }}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-right font-data text-slate-200">{{ fmtKrw(it.balanceUsdt) }}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-right font-data text-slate-100">{{ fmtWon(it.krwAmount) }}</td>
-              <td class="max-w-[5em] truncate px-3 py-3 text-right font-data text-slate-300">{{ fmt0(displayRate(it)) }}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-right font-data text-slate-300">{{ fmt4(displayUsdt(it)) }}</td>
-              <td class="max-w-[5em] truncate px-3 py-3 text-center">
+              <td class="max-w-[10ch] truncate px-[10px] py-3 text-slate-200" :title="it.name">{{ it.name }}</td>
+              <td class="max-w-[10ch] truncate px-[10px] py-3 font-data text-slate-300" :title="it.topCode">{{ it.topCode || '—' }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-right font-data text-slate-200">{{ fmtKrw(it.balanceUsdt) }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-right font-data text-slate-100">{{ fmtWon(it.krwAmount) }}</td>
+              <td class="max-w-[5em] truncate px-[10px] py-3 text-right font-data text-slate-300">{{ fmt0(displayRate(it)) }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-right font-data text-slate-300">{{ fmt4(displayUsdt(it)) }}</td>
+              <td class="max-w-[5em] truncate px-[10px] py-3 text-center">
                 <span
                   class="rounded px-2 py-1 text-[13px] font-semibold ring-1"
                   :class="it.type === 'withdrawal' ? 'bg-rose-500/10 text-rose-300 ring-rose-400/20' : 'bg-cyan-500/10 text-cyan-200 ring-cyan-400/20'"
@@ -137,7 +137,7 @@
                   {{ it.type === 'withdrawal' ? t('출금', 'Withdrawal') : t('입금', 'Deposit') }}
                 </span>
               </td>
-              <td class="px-3 py-3 text-center">
+              <td class="px-[10px] py-3 text-center">
                 <div v-if="it.status === 'pending' && canEdit" class="flex items-center justify-center gap-1.5">
                   <button
                     class="flex items-center justify-center gap-1 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-[13px] font-semibold text-black shadow-sm hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
@@ -164,7 +164,7 @@
                   {{ statusLabel(it) }}
                 </span>
               </td>
-              <td class="whitespace-nowrap px-3 py-3 text-center font-data text-slate-300">{{ formatDateTime(displayDate(it)) }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-center font-data text-slate-300">{{ formatDateTime(displayDate(it)) }}</td>
             </tr>
           </tbody>
         </table>
@@ -235,20 +235,20 @@
           <table class="w-full text-sm text-slate-200">
             <thead class="border-b border-[#12314a] text-[13px] text-slate-400">
               <tr>
-                <th class="px-3 py-2 text-left">{{ t('회원 아이디', 'Username') }}</th>
-                <th class="px-3 py-2 text-left">{{ t('회원 이름', 'Name') }}</th>
-                <th class="px-3 py-2 text-right">{{ t('입금/출금 금액', 'Amount') }}</th>
-                <th class="px-3 py-2 text-center">{{ t('구분', 'Type') }}</th>
-                <th class="px-3 py-2 text-center">{{ t('삭제 일시', 'Deleted At') }}</th>
-                <th class="px-3 py-2 text-center">{{ t('복구', 'Restore') }}</th>
+                <th class="px-[10px] py-2 text-left">{{ t('회원 아이디', 'Username') }}</th>
+                <th class="px-[10px] py-2 text-left">{{ t('회원 이름', 'Name') }}</th>
+                <th class="px-[10px] py-2 text-right">{{ t('입금/출금 금액', 'Amount') }}</th>
+                <th class="px-[10px] py-2 text-center">{{ t('구분', 'Type') }}</th>
+                <th class="px-[10px] py-2 text-center">{{ t('삭제 일시', 'Deleted At') }}</th>
+                <th class="px-[10px] py-2 text-center">{{ t('복구', 'Restore') }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="it in deletedItems" :key="it.id" class="border-b border-[#0d2438]">
-                <td class="max-w-[10ch] truncate px-3 py-2 font-data text-slate-100" :title="it.username">{{ it.username }}</td>
-                <td class="max-w-[10ch] truncate px-3 py-2 text-slate-200" :title="it.name">{{ it.name }}</td>
-                <td class="whitespace-nowrap px-3 py-2 text-right font-data text-slate-100">{{ fmtWon(it.krwAmount) }}</td>
-                <td class="px-3 py-2 text-center">
+                <td class="max-w-[10ch] truncate px-[10px] py-2 font-data text-slate-100" :title="it.username">{{ it.username }}</td>
+                <td class="max-w-[10ch] truncate px-[10px] py-2 text-slate-200" :title="it.name">{{ it.name }}</td>
+                <td class="whitespace-nowrap px-[10px] py-2 text-right font-data text-slate-100">{{ fmtWon(it.krwAmount) }}</td>
+                <td class="px-[10px] py-2 text-center">
                   <span
                     class="rounded px-2 py-1 text-[13px] font-semibold ring-1"
                     :class="it.type === 'withdrawal' ? 'bg-rose-500/10 text-rose-300 ring-rose-400/20' : 'bg-cyan-500/10 text-cyan-200 ring-cyan-400/20'"
@@ -256,8 +256,8 @@
                     {{ it.type === 'withdrawal' ? t('출금', 'Withdrawal') : t('입금', 'Deposit') }}
                   </span>
                 </td>
-                <td class="whitespace-nowrap px-3 py-2 text-center font-data text-slate-300">{{ it.deletedAt ? formatDateTime(it.deletedAt) : '—' }}</td>
-                <td class="px-3 py-2 text-center">
+                <td class="whitespace-nowrap px-[10px] py-2 text-center font-data text-slate-300">{{ it.deletedAt ? formatDateTime(it.deletedAt) : '—' }}</td>
+                <td class="px-[10px] py-2 text-center">
                   <button
                     type="button"
                     class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-[13px] font-semibold text-black shadow-sm hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"

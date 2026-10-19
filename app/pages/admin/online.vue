@@ -31,31 +31,31 @@
         <table class="min-w-full text-xs text-slate-200">
           <thead class="border-b border-[#12314a] text-[12px] text-slate-400">
             <tr>
-              <th class="px-3 py-3 text-left">{{ t('회원 ID', 'Member ID') }}</th>
-              <th class="px-3 py-3 text-left">{{ t('회원아이디', 'Username') }}</th>
-              <th class="px-3 py-3 text-left">{{ t('회원 이름', 'Name') }}</th>
-              <th class="px-3 py-3 text-left">{{ t('권한', 'Role') }}</th>
-              <th class="px-3 py-3 text-left">IP</th>
-              <th class="px-3 py-3 text-left">{{ t('최근 접속', 'Last Seen') }}</th>
-              <th class="px-3 py-3 text-center">{{ t('보유 포지션', 'Positions') }}</th>
+              <th class="px-[10px] py-3 text-left">{{ t('회원 ID', 'Member ID') }}</th>
+              <th class="px-[10px] py-3 text-left">{{ t('회원아이디', 'Username') }}</th>
+              <th class="px-[10px] py-3 text-left">{{ t('회원 이름', 'Name') }}</th>
+              <th class="px-[10px] py-3 text-left">{{ t('권한', 'Role') }}</th>
+              <th class="px-[10px] py-3 text-left">IP</th>
+              <th class="px-[10px] py-3 text-left">{{ t('최근 접속', 'Last Seen') }}</th>
+              <th class="px-[10px] py-3 text-center">{{ t('보유 포지션', 'Positions') }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="!loading && filtered.length === 0" class="border-b border-[#0d2438]">
-              <td colspan="7" class="px-3 py-8 text-center text-slate-500">{{ t('접속중인 유저가 없습니다.', 'No users are currently connected.') }}</td>
+              <td colspan="7" class="px-[10px] py-8 text-center text-slate-500">{{ t('접속중인 유저가 없습니다.', 'No users are currently connected.') }}</td>
             </tr>
             <tr v-for="u in filtered" :key="u.id" class="border-b border-[#0d2438] hover:bg-white/[0.02]">
-              <td class="px-3 py-3 font-data text-slate-300">#{{ u.id }}</td>
-              <td class="px-3 py-3 font-semibold text-slate-100">
+              <td class="px-[10px] py-3 font-data text-slate-300">#{{ u.id }}</td>
+              <td class="px-[10px] py-3 font-semibold text-slate-100">
                 <button type="button" class="underline-offset-4 hover:text-cyan-300 hover:underline" @click="memberInfoModal?.open(u.username)">
                   {{ u.username }}
                 </button>
               </td>
-              <td class="px-3 py-3 text-slate-200">{{ u.name || '—' }}</td>
-              <td class="px-3 py-3 text-slate-300">{{ u.role }}</td>
-              <td class="px-3 py-3 font-data text-slate-300">{{ u.ip || '—' }}</td>
-              <td class="px-3 py-3 font-data text-slate-400">{{ u.lastSeenAt ? formatTime(u.lastSeenAt) : '—' }}</td>
-              <td class="px-3 py-3 text-center">
+              <td class="px-[10px] py-3 text-slate-200">{{ u.name || '—' }}</td>
+              <td class="px-[10px] py-3 text-slate-300">{{ u.role }}</td>
+              <td class="px-[10px] py-3 font-data text-slate-300">{{ u.ip || '—' }}</td>
+              <td class="px-[10px] py-3 font-data text-slate-400">{{ u.lastSeenAt ? formatTime(u.lastSeenAt) : '—' }}</td>
+              <td class="px-[10px] py-3 text-center">
                 <button
                   v-if="u.positionSymbols.length"
                   type="button"

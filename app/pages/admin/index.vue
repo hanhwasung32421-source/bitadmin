@@ -86,24 +86,24 @@
           <table class="w-full text-sm">
             <thead class="border-b border-[#12314a] text-[12px] text-slate-500">
               <tr>
-                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('username')">{{ t('아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
-                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('name')">{{ t('이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
-                <th class="whitespace-nowrap px-3 py-3 text-left">{{ t('계좌정보', 'Bank Account') }}</th>
-                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('usdt')">{{ t('USDT잔액', 'USDT Balance') }}<span class="sort-icon">{{ sortArrow('usdt') || ' ⇅' }}</span></th>
-                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('referralCode')">{{ t('추천코드', 'Referral Code') }}<span class="sort-icon">{{ sortArrow('referralCode') || ' ⇅' }}</span></th>
-                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('role')">{{ t('역할', 'Role') }}<span class="sort-icon">{{ sortArrow('role') || ' ⇅' }}</span></th>
-                <th class="whitespace-nowrap px-3 py-3 text-left">{{ t('정산유형', 'Settlement Type') }}</th>
-                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('created_at')">{{ t('가입일', 'Joined') }}<span class="sort-icon">{{ sortArrow('created_at') || ' ⇅' }}</span></th>
-                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('last_login')">{{ t('최근 접속일', 'Last Login') }}<span class="sort-icon">{{ sortArrow('last_login') || ' ⇅' }}</span></th>
-                <th class="whitespace-nowrap px-3 py-3 text-center">{{ t('하부보기', 'Downline') }}</th>
-                <th class="whitespace-nowrap px-3 py-3 text-center">{{ t('비밀번호', 'Password') }}</th>
-                <th class="whitespace-nowrap px-3 py-3 text-center">{{ t('로그인', 'Login') }}</th>
+                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('username')">{{ t('아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
+                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('name')">{{ t('이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
+                <th class="whitespace-nowrap px-[10px] py-3 text-left">{{ t('계좌정보', 'Bank Account') }}</th>
+                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('usdt')">{{ t('USDT잔액', 'USDT Balance') }}<span class="sort-icon">{{ sortArrow('usdt') || ' ⇅' }}</span></th>
+                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('referralCode')">{{ t('추천코드', 'Referral Code') }}<span class="sort-icon">{{ sortArrow('referralCode') || ' ⇅' }}</span></th>
+                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('role')">{{ t('역할', 'Role') }}<span class="sort-icon">{{ sortArrow('role') || ' ⇅' }}</span></th>
+                <th class="whitespace-nowrap px-[10px] py-3 text-left">{{ t('정산유형', 'Settlement Type') }}</th>
+                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('created_at')">{{ t('가입일', 'Joined') }}<span class="sort-icon">{{ sortArrow('created_at') || ' ⇅' }}</span></th>
+                <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('last_login')">{{ t('최근 접속일', 'Last Login') }}<span class="sort-icon">{{ sortArrow('last_login') || ' ⇅' }}</span></th>
+                <th class="whitespace-nowrap px-[10px] py-3 text-center">{{ t('하부보기', 'Downline') }}</th>
+                <th class="whitespace-nowrap px-[10px] py-3 text-center">{{ t('비밀번호', 'Password') }}</th>
+                <th class="whitespace-nowrap px-[10px] py-3 text-center">{{ t('로그인', 'Login') }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="u in pagedUsers" :key="u.id" class="border-b border-[#0d2438] hover:bg-white/[0.02]">
                 <template v-if="userDraft[u.id]">
-                  <td class="px-3 py-2.5">
+                  <td class="px-[10px] py-2.5">
                     <input
                       v-model.trim="userDraft[u.id].username"
                       :disabled="isLockedUser(u)"
@@ -112,7 +112,7 @@
                       @keyup.enter="saveUserRow(u.id)"
                     />
                   </td>
-                  <td class="px-3 py-2.5">
+                  <td class="px-[10px] py-2.5">
                     <input
                       v-model.trim="userDraft[u.id].name"
                       :disabled="isLockedUser(u)"
@@ -121,7 +121,7 @@
                       @keyup.enter="saveUserRow(u.id)"
                     />
                   </td>
-                  <td class="px-3 py-2.5">
+                  <td class="px-[10px] py-2.5">
                     <button
                       class="whitespace-nowrap rounded-md bg-white/10 px-3 py-1.5 text-sm hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-50"
                       :disabled="isLockedUser(u)"
@@ -130,7 +130,7 @@
                       {{ t('계좌정보', 'Bank Account') }}
                     </button>
                   </td>
-                  <td class="px-3 py-2.5">
+                  <td class="px-[10px] py-2.5">
                     <input
                       v-model.number="userDraft[u.id].usdt"
                       type="number"
@@ -141,7 +141,7 @@
                       @keyup.enter="saveUserRow(u.id)"
                     />
                   </td>
-                  <td class="px-3 py-2.5">
+                  <td class="px-[10px] py-2.5">
                     <input
                       v-model.trim="userDraft[u.id].referralCode"
                       :disabled="isLockedUser(u)"
@@ -150,7 +150,7 @@
                       @keyup.enter="saveUserRow(u.id)"
                     />
                   </td>
-                  <td class="px-3 py-2.5">
+                  <td class="px-[10px] py-2.5">
                     <select
                       v-model="userDraft[u.id].role"
                       :disabled="isLockedUser(u)"
@@ -162,7 +162,7 @@
                       <option value="super_admin">{{ t('최고관리자', 'Super Admin') }} (super_admin)</option>
                     </select>
                   </td>
-                  <td class="px-3 py-2.5">
+                  <td class="px-[10px] py-2.5">
                     <div v-if="u.role !== 'user' && u.role !== 'super_admin'" class="flex items-center gap-1.5">
                       <select
                         v-model="userDraft[u.id].settlementType"
@@ -189,9 +189,9 @@
                     </div>
                     <span v-else class="text-xs text-slate-600">—</span>
                   </td>
-                  <td class="whitespace-nowrap px-3 py-2.5 font-data text-slate-300">{{ dateOnly(u.created_at) }}</td>
-                  <td class="whitespace-nowrap px-3 py-2.5 font-data text-slate-300">{{ u.last_login ? dateOnly(u.last_login) : '—' }}</td>
-                  <td class="px-3 py-2.5 text-center">
+                  <td class="whitespace-nowrap px-[10px] py-2.5 font-data text-slate-300">{{ dateOnly(u.created_at) }}</td>
+                  <td class="whitespace-nowrap px-[10px] py-2.5 font-data text-slate-300">{{ u.last_login ? dateOnly(u.last_login) : '—' }}</td>
+                  <td class="px-[10px] py-2.5 text-center">
                     <button
                       class="whitespace-nowrap rounded-md bg-white/10 px-3 py-1.5 text-sm hover:bg-white/15"
                       @click="referralFilter = u.username"
@@ -199,7 +199,7 @@
                       {{ t('하부보기', 'Downline') }}
                     </button>
                   </td>
-                  <td class="px-3 py-2.5 text-center">
+                  <td class="px-[10px] py-2.5 text-center">
                     <button
                       class="whitespace-nowrap rounded-md bg-amber-500/15 px-3 py-1.5 text-sm text-amber-200 ring-1 ring-amber-400/30 hover:bg-amber-500/25 disabled:cursor-not-allowed disabled:opacity-50"
                       :disabled="userResetting === u.id || isLockedUser(u)"
@@ -208,7 +208,7 @@
                       {{ t('초기화', 'Reset') }}
                     </button>
                   </td>
-                  <td class="px-3 py-2.5 text-center">
+                  <td class="px-[10px] py-2.5 text-center">
                     <button
                       class="whitespace-nowrap rounded-md bg-emerald-500/15 px-3 py-1.5 text-sm text-emerald-200 ring-1 ring-emerald-400/30 hover:bg-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50"
                       :disabled="loggingInAs === u.id"

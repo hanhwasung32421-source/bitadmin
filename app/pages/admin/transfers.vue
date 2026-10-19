@@ -41,31 +41,31 @@
         <table class="min-w-full text-xs text-slate-200">
           <thead class="border-b border-[#12314a] text-[12px] text-slate-400">
             <tr>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('username')">{{ t('회원 아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('name')">{{ t('회원 이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('affiliateName')">{{ t('총판 이름', 'Affiliate') }}<span class="sort-icon">{{ sortArrow('affiliateName') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('type')">{{ t('입금 유형', 'Type') }}<span class="sort-icon">{{ sortArrow('type') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-right" @click="toggleSort('amount_usdt')">{{ t('USDT 금액', 'USDT Amount') }}<span class="sort-icon">{{ sortArrow('amount_usdt') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('status')">{{ t('입금 상태', 'Status') }}<span class="sort-icon">{{ sortArrow('status') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('created_at')">{{ t('입금 일시', 'Date/Time') }}<span class="sort-icon">{{ sortArrow('created_at') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-3 py-3 text-left" @click="toggleSort('admin')">{{ t('처리자', 'Processed By') }}<span class="sort-icon">{{ sortArrow('admin') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('username')">{{ t('회원 아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('name')">{{ t('회원 이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('affiliateName')">{{ t('총판 이름', 'Affiliate') }}<span class="sort-icon">{{ sortArrow('affiliateName') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('type')">{{ t('입금 유형', 'Type') }}<span class="sort-icon">{{ sortArrow('type') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('amount_usdt')">{{ t('USDT 금액', 'USDT Amount') }}<span class="sort-icon">{{ sortArrow('amount_usdt') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('status')">{{ t('입금 상태', 'Status') }}<span class="sort-icon">{{ sortArrow('status') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('created_at')">{{ t('입금 일시', 'Date/Time') }}<span class="sort-icon">{{ sortArrow('created_at') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('admin')">{{ t('처리자', 'Processed By') }}<span class="sort-icon">{{ sortArrow('admin') || ' ⇅' }}</span></th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="!loading && filtered.length === 0" class="border-b border-[#0d2438]">
-              <td colspan="8" class="px-3 py-8 text-center text-slate-500">{{ t('입출금 내역이 없습니다.', 'No deposit/withdrawal history.') }}</td>
+              <td colspan="8" class="px-[10px] py-8 text-center text-slate-500">{{ t('입출금 내역이 없습니다.', 'No deposit/withdrawal history.') }}</td>
             </tr>
             <tr v-for="r in paged" :key="`${r.created_at}-${r.user_id}-${r.amount_usdt}`" class="border-b border-[#0d2438] hover:bg-white/[0.02]">
-              <td class="whitespace-nowrap px-3 py-3 font-data text-slate-100">{{ r.username }}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-slate-200">{{ r.name }}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-slate-300">{{ r.affiliateName }}</td>
-              <td class="whitespace-nowrap px-3 py-3">{{ r.type === '입금' ? t('입금', 'Deposit') : r.type === '출금' ? t('출금', 'Withdrawal') : r.type }}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-right font-data text-slate-200">{{ fmt2(r.amount_usdt) }}</td>
-              <td class="whitespace-nowrap px-3 py-3">
+              <td class="whitespace-nowrap px-[10px] py-3 font-data text-slate-100">{{ r.username }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-slate-200">{{ r.name }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-slate-300">{{ r.affiliateName }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3">{{ r.type === '입금' ? t('입금', 'Deposit') : r.type === '출금' ? t('출금', 'Withdrawal') : r.type }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-right font-data text-slate-200">{{ fmt2(r.amount_usdt) }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3">
                 <span class="rounded bg-white/10 px-2 py-1 text-[12px] font-semibold text-slate-100 ring-1 ring-white/10">{{ r.status }}</span>
               </td>
-              <td class="whitespace-nowrap px-3 py-3 font-data text-slate-300">{{ formatDateTime(r.created_at) }}</td>
-              <td class="whitespace-nowrap px-3 py-3 text-slate-300">{{ r.admin }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 font-data text-slate-300">{{ formatDateTime(r.created_at) }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-slate-300">{{ r.admin }}</td>
             </tr>
           </tbody>
         </table>

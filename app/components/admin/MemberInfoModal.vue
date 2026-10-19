@@ -73,22 +73,22 @@
             <table class="min-w-full text-xs text-slate-200">
               <thead class="bg-white/5 text-slate-400">
                 <tr>
-                  <th class="px-3 py-2 text-left">{{ t('심볼', 'Symbol') }}</th>
-                  <th class="px-3 py-2 text-left">{{ t('구분', 'Side') }}</th>
-                  <th class="px-3 py-2 text-right">{{ t('레버리지', 'Leverage') }}</th>
-                  <th class="px-3 py-2 text-right">{{ t('수량', 'Qty') }}</th>
-                  <th class="px-3 py-2 text-right">{{ t('진입가', 'Entry Price') }}</th>
-                  <th class="px-3 py-2 text-right">{{ t('증거금', 'Margin') }}</th>
+                  <th class="px-[10px] py-2 text-left">{{ t('심볼', 'Symbol') }}</th>
+                  <th class="px-[10px] py-2 text-left">{{ t('구분', 'Side') }}</th>
+                  <th class="px-[10px] py-2 text-right">{{ t('레버리지', 'Leverage') }}</th>
+                  <th class="px-[10px] py-2 text-right">{{ t('수량', 'Qty') }}</th>
+                  <th class="px-[10px] py-2 text-right">{{ t('진입가', 'Entry Price') }}</th>
+                  <th class="px-[10px] py-2 text-right">{{ t('증거금', 'Margin') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="p in detail.positions" :key="p.id" class="border-t border-white/5">
-                  <td class="px-3 py-2 font-semibold text-slate-100">{{ p.symbol }}</td>
-                  <td class="px-3 py-2" :class="p.side === 'long' ? 'text-emerald-300' : 'text-rose-300'">{{ p.side === 'long' ? t('롱', 'Long') : t('숏', 'Short') }}</td>
-                  <td class="px-3 py-2 text-right font-data text-slate-300">x{{ p.leverage }}</td>
-                  <td class="px-3 py-2 text-right font-data text-slate-300">{{ fmt2(p.qty) }}</td>
-                  <td class="px-3 py-2 text-right font-data text-slate-300">{{ fmt2(p.entryPrice) }}</td>
-                  <td class="px-3 py-2 text-right font-data text-slate-300">{{ fmt2(p.margin) }}</td>
+                  <td class="px-[10px] py-2 font-semibold text-slate-100">{{ p.symbol }}</td>
+                  <td class="px-[10px] py-2" :class="p.side === 'long' ? 'text-emerald-300' : 'text-rose-300'">{{ p.side === 'long' ? t('롱', 'Long') : t('숏', 'Short') }}</td>
+                  <td class="px-[10px] py-2 text-right font-data text-slate-300">x{{ p.leverage }}</td>
+                  <td class="px-[10px] py-2 text-right font-data text-slate-300">{{ fmt2(p.qty) }}</td>
+                  <td class="px-[10px] py-2 text-right font-data text-slate-300">{{ fmt2(p.entryPrice) }}</td>
+                  <td class="px-[10px] py-2 text-right font-data text-slate-300">{{ fmt2(p.margin) }}</td>
                 </tr>
               </tbody>
             </table>

@@ -61,39 +61,39 @@
         <table class="w-full text-[12px] leading-tight text-slate-200">
           <thead class="border-b border-[#12314a] text-[12px] text-slate-400">
             <tr>
-              <th class="whitespace-nowrap px-2 py-3 text-left">{{ t('회원아이디', 'Username') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-left">{{ t('회원 이름', 'Name') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-left">{{ t('소속총판', 'Affiliate') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-left">{{ t('심볼', 'Symbol') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-left">{{ t('주문타입', 'Order Type') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-left">{{ t('포지션', 'Position') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-right">{{ t('증거금', 'Margin') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-right">{{ t('레버리지', 'Leverage') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-right">{{ t('진입가격', 'Entry Price') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-right">{{ t('계약수량', 'Contract Qty') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-right">{{ t('청산가격', 'Liq. Price') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-right">{{ t('수익', 'PnL') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-right">{{ t('수익률', 'ROE') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-right">{{ t('수수료', 'Fee') }}</th>
-              <th class="whitespace-nowrap px-2 py-3 text-center">{{ t('접속확인', 'Status') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-left">{{ t('회원아이디', 'Username') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-left">{{ t('회원 이름', 'Name') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-left">{{ t('소속총판', 'Affiliate') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-left">{{ t('심볼', 'Symbol') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-left">{{ t('주문타입', 'Order Type') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-left">{{ t('포지션', 'Position') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-right">{{ t('증거금', 'Margin') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-right">{{ t('레버리지', 'Leverage') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-right">{{ t('진입가격', 'Entry Price') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-right">{{ t('계약수량', 'Contract Qty') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-right">{{ t('청산가격', 'Liq. Price') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-right">{{ t('수익', 'PnL') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-right">{{ t('수익률', 'ROE') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-right">{{ t('수수료', 'Fee') }}</th>
+              <th class="whitespace-nowrap px-[6.5px] py-3 text-center">{{ t('접속확인', 'Status') }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="!loading && filteredItems.length === 0" class="border-b border-[#0d2438]">
-              <td colspan="15" class="px-2 py-10 text-center text-slate-500">{{ t('표시할 포지션이 없습니다.', 'No positions to display.') }}</td>
+              <td colspan="15" class="px-[6.5px] py-10 text-center text-slate-500">{{ t('표시할 포지션이 없습니다.', 'No positions to display.') }}</td>
             </tr>
             <tr v-for="row in pagedItems" :key="row.id" class="border-b border-[#0d2438] hover:bg-white/[0.02]">
-              <td class="whitespace-nowrap px-2 py-2.5">
+              <td class="whitespace-nowrap px-[6.5px] py-2.5">
                 <button type="button" class="font-semibold text-slate-100 underline-offset-4 hover:text-cyan-300 hover:underline" @click="memberInfoModal?.open(row.username)">
                   {{ row.username }}
                 </button>
                 <div class="mt-0.5 font-data text-[12px] text-slate-500">(#{{ row.user_id }})</div>
               </td>
-              <td class="whitespace-nowrap px-2 py-2.5 text-slate-100">{{ row.name || '—' }}</td>
-              <td class="whitespace-nowrap px-2 py-2.5 text-slate-300">{{ row.affiliate }}</td>
-              <td class="whitespace-nowrap px-2 py-2.5 font-semibold text-slate-100">{{ row.symbol }}</td>
-              <td class="whitespace-nowrap px-2 py-2.5">{{ row.orderType }}</td>
-              <td class="whitespace-nowrap px-2 py-2.5">
+              <td class="whitespace-nowrap px-[6.5px] py-2.5 text-slate-100">{{ row.name || '—' }}</td>
+              <td class="whitespace-nowrap px-[6.5px] py-2.5 text-slate-300">{{ row.affiliate }}</td>
+              <td class="whitespace-nowrap px-[6.5px] py-2.5 font-semibold text-slate-100">{{ row.symbol }}</td>
+              <td class="whitespace-nowrap px-[6.5px] py-2.5">{{ row.orderType }}</td>
+              <td class="whitespace-nowrap px-[6.5px] py-2.5">
                 <span
                   class="rounded px-2 py-1 text-[13px] font-semibold ring-1"
                   :class="row.position === 'LONG' ? 'bg-[#0c2c26] text-[#22ab94] ring-[#089981]/30' : 'bg-[#151f35] text-[#60a5fa] ring-[#3b82f6]/30'"
@@ -101,19 +101,19 @@
                   {{ row.position }}
                 </span>
               </td>
-              <td class="whitespace-nowrap px-2 py-2.5 text-right font-data tabular-nums">{{ fmtNum(row.margin) }}</td>
-              <td class="whitespace-nowrap px-2 py-2.5 text-right font-data tabular-nums">{{ row.leverage }}x</td>
-              <td class="whitespace-nowrap px-2 py-2.5 text-right font-data tabular-nums">{{ fmtPrice(row.entryPrice) }}</td>
-              <td class="whitespace-nowrap px-2 py-2.5 text-right font-data tabular-nums">{{ fmtQty(row.qty) }}</td>
-              <td class="whitespace-nowrap px-2 py-2.5 text-right font-data tabular-nums">{{ fmtPrice(row.liqPrice) }}</td>
-              <td class="whitespace-nowrap px-2 py-2.5 text-right font-data-plain tabular-nums" :class="profitClass(row.pnl)">
+              <td class="whitespace-nowrap px-[6.5px] py-2.5 text-right font-data tabular-nums">{{ fmtNum(row.margin) }}</td>
+              <td class="whitespace-nowrap px-[6.5px] py-2.5 text-right font-data tabular-nums">{{ row.leverage }}x</td>
+              <td class="whitespace-nowrap px-[6.5px] py-2.5 text-right font-data tabular-nums">{{ fmtPrice(row.entryPrice) }}</td>
+              <td class="whitespace-nowrap px-[6.5px] py-2.5 text-right font-data tabular-nums">{{ fmtQty(row.qty) }}</td>
+              <td class="whitespace-nowrap px-[6.5px] py-2.5 text-right font-data tabular-nums">{{ fmtPrice(row.liqPrice) }}</td>
+              <td class="whitespace-nowrap px-[6.5px] py-2.5 text-right font-data-plain tabular-nums" :class="profitClass(row.pnl)">
                 {{ signed(row.pnl) }}
               </td>
-              <td class="whitespace-nowrap px-2 py-2.5 text-right font-data-plain tabular-nums" :class="profitClass(row.roe)">
+              <td class="whitespace-nowrap px-[6.5px] py-2.5 text-right font-data-plain tabular-nums" :class="profitClass(row.roe)">
                 {{ signed(row.roe, '%') }}
               </td>
-              <td class="whitespace-nowrap px-2 py-2.5 text-right font-data tabular-nums text-slate-300">{{ fmtNum(row.fee) }}</td>
-              <td class="whitespace-nowrap px-2 py-2.5 text-center">
+              <td class="whitespace-nowrap px-[6.5px] py-2.5 text-right font-data tabular-nums text-slate-300">{{ fmtNum(row.fee) }}</td>
+              <td class="whitespace-nowrap px-[6.5px] py-2.5 text-center">
                 <span
                   class="rounded px-2 py-1 text-[12px] font-semibold"
                   :class="row.online ? 'bg-emerald-500/15 text-emerald-300' : 'bg-[#2b3445] text-slate-200'"
