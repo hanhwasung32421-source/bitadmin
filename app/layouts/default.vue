@@ -122,7 +122,8 @@
       </div>
     </header>
 
-    <main class="mx-auto max-w-none px-3 py-4 sm:px-6 md:py-6 lg:px-[60px]">
+    <!-- 데스크톱(lg 이상)에서는 좌우 15%씩 비워서 표/내용이 가운데 70% 폭에 오도록 한다 -->
+    <main class="mx-auto max-w-none px-3 py-4 sm:px-6 md:py-6 lg:px-[15%]">
       <slot />
     </main>
 
