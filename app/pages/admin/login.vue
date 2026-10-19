@@ -16,9 +16,6 @@
         {{ t('로그인', 'Log In') }}
       </button>
       <p v-if="error" class="text-sm text-red-300">{{ error }}</p>
-      <p class="text-xs text-slate-500">
-        {{ t('기본 총관리자 계정', 'Default super-admin account') }}: <span class="font-data">admin</span> / <span class="font-data">1121</span>
-      </p>
     </form>
   </div>
 </template>

@@ -117,8 +117,8 @@ export default defineEventHandler(async (event) => {
     }
   }
   const sorted = [...requests].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
-  const recentDeposits = sorted.filter((r) => r.type === 'deposit').slice(0, 5).map(toRow)
-  const recentWithdrawals = sorted.filter((r) => r.type === 'withdrawal').slice(0, 5).map(toRow)
+  const recentDeposits = sorted.filter((r) => r.type === 'deposit').slice(0, 8).map(toRow)
+  const recentWithdrawals = sorted.filter((r) => r.type === 'withdrawal').slice(0, 8).map(toRow)
 
   const krw = (usdt: number) => Math.round(usdt * rate)
   return {

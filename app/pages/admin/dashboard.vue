@@ -17,7 +17,7 @@
         <div
           v-for="card in cards"
           :key="card.key"
-          class="flex min-h-[110px] flex-col justify-between rounded-xl border border-white/10 bg-[#050d1a] p-5"
+          class="flex min-h-[77px] flex-col justify-between rounded-xl border border-white/10 bg-[#050d1a] p-3"
         >
           <div class="flex items-start justify-between gap-2">
             <div class="flex items-center gap-1.5 text-[13px] font-medium text-slate-200">
@@ -26,11 +26,12 @@
             </div>
             <span class="text-slate-400">{{ card.icon }}</span>
           </div>
-          <div class="mt-3 text-2xl font-bold tracking-tight" :class="card.negative ? 'text-red-400' : 'text-white'">{{ card.value }}</div>
+          <div class="mt-1 text-xl font-bold leading-tight tracking-tight" :class="card.negative ? 'text-red-400' : 'text-white'">{{ card.value }}</div>
         </div>
       </section>
 
-      <section class="rounded-xl border border-white/10 bg-[#050d1a] p-5">
+      <!-- 높이는 왼쪽 카드 4줄(77px×4 + 간격 16px×3 = 356px)에 맞추고, 내용이 넘치면 표만 스크롤한다 -->
+      <section class="flex min-h-0 flex-col rounded-xl border border-white/10 bg-[#050d1a] p-4 xl:h-[356px]">
         <div class="flex items-start justify-between gap-3">
           <div>
             <h2 class="text-[15px] font-semibold text-slate-100">{{ t('거래내역 요약', 'Trade Summary') }}</h2>
@@ -41,8 +42,8 @@
           </NuxtLink>
         </div>
 
-        <div class="mt-4 grid grid-cols-4 gap-2 text-center">
-          <div class="rounded-lg bg-white/[0.04] px-2 py-2">
+        <div class="mt-3 grid grid-cols-4 gap-2 text-center">
+          <div class="rounded-lg bg-white/[0.04] px-2 py-1.5">
             <div class="text-[11px] text-slate-400">{{ t('주간 거래', 'Weekly Trades') }}</div>
             <div class="mt-0.5 text-base font-bold text-white">{{ data?.tradeSummary.weekTrades ?? 0 }}</div>
           </div>
@@ -60,9 +61,9 @@
           </div>
         </div>
 
-        <div class="mt-4 overflow-x-auto">
+        <div class="mt-3 min-h-0 flex-1 overflow-auto">
           <table class="w-full text-[13px]">
-            <thead class="text-slate-400">
+            <thead class="sticky top-0 bg-[#050d1a] text-slate-400">
               <tr class="border-b border-white/10 text-left">
                 <th class="px-[10px] py-2 font-medium">{{ t('날짜', 'Date') }}</th>
                 <th class="px-[10px] py-2 font-medium">{{ t('회원', 'Member') }}</th>
@@ -92,7 +93,7 @@
 
     <!-- 입금/출금 최근 내역 -->
     <div class="grid gap-6 xl:grid-cols-2">
-      <section v-for="blk in transferBlocks" :key="blk.key" class="rounded-xl border border-white/10 bg-[#050d1a] p-5">
+      <section v-for="blk in transferBlocks" :key="blk.key" class="min-h-[470px] rounded-xl border border-white/10 bg-[#050d1a] p-5">
         <div class="flex items-start justify-between gap-3">
           <div>
             <h2 class="text-[15px] font-semibold text-slate-100">{{ t(blk.ko, blk.en) }}</h2>
