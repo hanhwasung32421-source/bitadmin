@@ -2,7 +2,7 @@
   <div class="space-y-6">
     <div class="flex items-end justify-between gap-3">
       <div>
-        <h1 class="text-xl font-semibold">{{ t('쪽지관리', 'Message Management') }}</h1>
+        <h1 class="text-xl font-semibold">{{ t('고객센터', 'Support') }}</h1>
         <p class="mt-1 text-sm text-slate-400">{{ t('전체회원 또는 선택 회원에게 쪽지를 보내고 답장을 확인합니다.', 'Send messages to all or selected members and view replies.') }}</p>
       </div>
       <button class="rounded-md bg-white/10 px-3 py-2 text-sm hover:bg-white/15" @click="activeTab === 'members' ? loadAll() : loadGuestThreads()">{{ t('새로고침', 'Refresh') }}</button>

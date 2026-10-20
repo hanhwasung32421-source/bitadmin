@@ -49,7 +49,7 @@ export function useMessages() {
     }, 4000)
   }
 
-  // 실시간 도착 알림음은 총관리자 또는 "어드민권한"(쪽지관리 수정 권한)이 있는 관리자만 울린다.
+  // 실시간 도착 알림음은 총관리자 또는 "어드민권한"(고객센터 수정 권한)이 있는 관리자만 울린다.
   function canHearRealtimeChime(): boolean {
     const { me } = useMe()
     if (!me.value) return false
@@ -58,7 +58,7 @@ export function useMessages() {
     return (me.value as any)?.permissions?.menus?.messages?.edit === true
   }
 
-  // 쪽지관리를 "보임"만 가진 부관리자는 볼 수만 있고 알람(팝업/소리)은 받지 않는다.
+  // 고객센터를 "보임"만 가진 부관리자는 볼 수만 있고 알람(팝업/소리)은 받지 않는다.
   function isViewOnlyAdmin(): boolean {
     const { me } = useMe()
     if (!me.value || me.value.role === 'user' || me.value.role === 'super_admin') return false

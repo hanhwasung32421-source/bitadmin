@@ -181,10 +181,9 @@ const ADMIN_MENU_ITEMS: Record<string, NavItem> = {
   deposits: { to: '/admin/deposits', ko: '입출금 내역', en: 'Deposits/Withdrawals' },
   trades: { to: '/admin/trades', ko: '거래 내역', en: 'Trade History' },
   positions: { to: '/admin/positions', ko: '포지션 목록', en: 'Positions' },
-  messages: { to: '/admin/messages', ko: '쪽지관리', en: 'Messages' },
   settlement: { to: '/admin/settlement', ko: '정산내역', en: 'Settlement' },
-  // KTX 사이트에서 관리자가 고객센터를 누르면 쪽지관리(/admin/messages)로 들어가는 것과 동일하다.
-  support: { to: '/admin/messages', ko: '고객센터', en: 'Support', permKey: 'messages', noActive: true }
+  // 예전 "쪽지관리"의 이름을 "고객센터"로 바꾼 메뉴(KTX에서 관리자가 고객센터를 누르면 들어가는 /admin/messages). 정산내역과 기타 사이.
+  messages: { to: '/admin/messages', ko: '고객센터', en: 'Support' }
 }
 // 이 사이트의 상단 메뉴 순서는 위 ADMIN_MENU_ITEMS 선언 순서로 고정한다.
 const orderedKeys = ref<string[]>(Object.keys(ADMIN_MENU_ITEMS))
