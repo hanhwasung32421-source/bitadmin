@@ -140,7 +140,7 @@ const route = useRoute()
 const navLoading = useState<boolean>('global_nav_loading', () => false)
 const { t } = useLocale()
 
-useHead({ title: 'BITADMIN' })
+useHead({ title: 'ADMIN' })
 
 const { me, refresh } = useMe()
 await refresh()
