@@ -53,6 +53,14 @@
         <!-- 가로 메뉴(overflow)에 잘리지 않도록 body로 빼서 화면 기준 위치에 띄운다 -->
         <Teleport to="body">
           <div v-if="moreOpen && isAdmin" ref="morePanel" class="fixed z-[100] min-w-[220px] rounded-xl border border-cyan-500/10 bg-[#03101d] p-2 shadow-[0_20px_40px_rgba(0,0,0,0.35)]" :style="{ top: morePos.top + 'px', left: morePos.left + 'px' }">
+              <button
+                type="button"
+                class="block w-full rounded-lg px-3 py-2 text-left text-[15px] text-slate-200 hover:bg-cyan-400/10 hover:text-white"
+                @click="copyReferralLink"
+              >
+                {{ referralLinkCopied ? t('복사됨!', 'Copied!') : t('추천가입링크 복사', 'Copy Referral Link') }}
+              </button>
+              <div v-if="moreItems.length" class="my-1 h-px bg-white/10" />
               <NuxtLink
                 v-for="item in moreItems"
                 :key="item.to"
@@ -62,32 +70,15 @@
               >
                 {{ t(item.ko, item.en) }}
               </NuxtLink>
-              <div v-if="moreItems.length" class="my-1 h-px bg-white/10" />
-              <button
-                type="button"
-                class="block w-full rounded-lg px-3 py-2 text-left text-[15px] text-slate-200 hover:bg-cyan-400/10 hover:text-white"
-                @click="copyReferralLink"
-              >
-                {{ referralLinkCopied ? t('복사됨!', 'Copied!') : t('추천가입링크 복사', 'Copy Referral Link') }}
-              </button>
+              <div class="my-1 h-px bg-white/10" />
               <a
-                :href="memberSiteUrl"
+                :href="ktxSiteUrl"
                 target="_blank"
                 rel="noopener"
                 class="block rounded-lg px-3 py-2 text-[15px] text-slate-200 hover:bg-cyan-400/10 hover:text-white"
                 @click="moreOpen = false"
               >
-                {{ t('빗덕 사이트 열기 ↗', 'Open BITDUCK ↗') }}
-              </a>
-              <a
-                v-if="stagingSiteUrl"
-                :href="stagingSiteUrl"
-                target="_blank"
-                rel="noopener"
-                class="block rounded-lg px-3 py-2 text-[15px] text-slate-200 hover:bg-cyan-400/10 hover:text-white"
-                @click="moreOpen = false"
-              >
-                {{ t('빗타이거 사이트 열기 ↗', 'Open BITTIGERS ↗') }}
+                {{ t('KTX 사이트 열기 ↗', 'Open KTX ↗') }}
               </a>
           </div>
         </Teleport>
@@ -120,6 +111,8 @@
 const config = useRuntimeConfig()
 const memberSiteUrl = String(config.public.memberSiteUrl || 'https://bitduck.vercel.app').replace(/\/+$/, '')
 const stagingSiteUrl = String(config.public.stagingSiteUrl || '').replace(/\/+$/, '')
+// KTX 사이트 = 기존 빗타이거 주소(없으면 회원 사이트 주소)
+const ktxSiteUrl = stagingSiteUrl || memberSiteUrl
 const { data: versionData } = await useFetch<{ date: string; build: number }>('/api/version', { key: 'app-version' })
 const route = useRoute()
 const navLoading = useState<boolean>('global_nav_loading', () => false)
@@ -204,7 +197,6 @@ const navItems = computed<NavItem[]>(() => {
 const moreItems = computed<NavItem[]>(() => {
   const list: NavItem[] = []
   if (isSuper.value) list.push({ to: '/admin/create-branch', ko: '계정생성', en: 'Create Account' })
-  if (canViewAdminMenu('transfers')) list.push({ to: '/admin/transfers', ko: '이체 내역', en: 'Transfers' })
   if (isSuper.value) list.push({ to: '/admin/users', ko: '회원 잔고/역할 관리', en: 'User Balance/Role' })
   return list
 })
@@ -239,7 +231,8 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
 const referralLinkCopied = ref(false)
 async function copyReferralLink() {
   if (!me.value?.username || !process.client) return
-  const link = `${memberSiteUrl}/auth/register?ref=${encodeURIComponent(me.value.username)}`
+  // 추천 코드(ref)에는 지금 로그인한 관리자의 아이디가 자동으로 들어간다.
+  const link = `${ktxSiteUrl}/auth/register?ref=${encodeURIComponent(me.value.username)}`
   try {
     await navigator.clipboard.writeText(link)
     referralLinkCopied.value = true
