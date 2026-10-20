@@ -59,7 +59,8 @@
               <td class="px-[10px] py-3">
                 <template v-if="pathInfo(u)">
                   <span class="font-semibold" :class="pathInfo(u)!.stale ? 'text-slate-500' : 'text-cyan-300'">{{ pathInfo(u)!.label }}</span>
-                  <span v-if="pathInfo(u)!.symbol" class="ml-1.5 rounded bg-amber-400/15 px-1.5 py-0.5 font-data text-[12px] font-semibold text-amber-400">{{ pathInfo(u)!.symbol }}</span>
+                  <span v-if="pathInfo(u)!.symbol" class="mx-1 text-slate-500">&gt;</span>
+                  <span v-if="pathInfo(u)!.symbol" class="rounded bg-amber-400/15 px-1.5 py-0.5 font-data text-[12px] font-semibold text-amber-400">{{ pathInfo(u)!.symbol }}</span>
                   <span v-if="pathInfo(u)!.stale" class="ml-1.5 text-[12px] text-slate-500">{{ pathInfo(u)!.agoText }}</span>
                 </template>
                 <span v-else class="text-slate-600">—</span>
@@ -83,6 +84,7 @@
         </table>
       </div>
 
+      <p v-if="!presenceReady" class="mt-3 text-sm text-amber-300">{{ t('접속 경로 기록 테이블(bitduck_user_presence)이 아직 없어서 임시로 로그인 세션 기준으로 표시 중입니다. SQL을 실행하면 지금 화면에 떠 있는 회원만 표시됩니다.', 'The presence table (bitduck_user_presence) is missing, so this list temporarily falls back to login sessions. Run the SQL to show only members who currently have the site open.') }}</p>
       <p v-if="error" class="mt-3 text-sm text-rose-300">{{ error }}</p>
     </div>
 
@@ -116,6 +118,7 @@ const items = ref<OnlineRow[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const keyword = ref('')
+const presenceReady = ref(true)
 const roleFilter = ref('')
 const lastUpdated = ref('')
 let timer: any = null
@@ -158,8 +161,10 @@ const MARKET_TYPE_LABELS: Record<string, [string, string]> = {
 }
 const STALE_MS = 90 * 1000
 function pathInfo(u: OnlineRow): { label: string; symbol: string; stale: boolean; agoText: string } | null {
-  const p = u.currentPath
-  if (!p) return null
+  const raw = u.currentPath
+  if (!raw) return null
+  const [p = '', query = ''] = raw.split('?')
+  const kind = new URLSearchParams(query).get('m') || ''
   const at = u.currentPathAt ? new Date(u.currentPathAt).getTime() : 0
   const age = at ? Date.now() - at : 0
   const stale = age > STALE_MS
@@ -170,7 +175,8 @@ function pathInfo(u: OnlineRow): { label: string; symbol: string; stale: boolean
   const ex = p.match(/^\/exchange\/([^/]+)/)
   if (ex) {
     const symbol = decodeURIComponent(ex[1] || '')
-    return { ...base, label: t('차트', 'Chart'), symbol }
+    const menu = MARKET_TYPE_LABELS[kind]
+    return { ...base, label: menu ? t(menu[0], menu[1]) : t('차트', 'Chart'), symbol }
   }
   if (p === '/exchange') return { ...base, label: t('거래소', 'Exchange'), symbol: '' }
   if (p === '/') return { ...base, label: t('메인 화면', 'Home'), symbol: '' }
@@ -201,7 +207,8 @@ async function load(silent = false) {
   loadingNow = true
   if (!silent) loading.value = true
   try {
-    const res = await $fetch<{ items: OnlineRow[] }>('/api/admin/online')
+    const res = await $fetch<{ items: OnlineRow[]; presenceReady?: boolean }>('/api/admin/online')
+    presenceReady.value = res.presenceReady !== false
     items.value = res.items || []
     lastUpdated.value = new Date().toLocaleTimeString('ko-KR', { hour12: false })
     error.value = null
