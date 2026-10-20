@@ -34,7 +34,7 @@
           </button>
         </div>
 
-        <div class="flex w-[404px] max-w-full items-center gap-2 rounded-md border border-[#173753] bg-[#041425] px-3 py-2 text-sm text-slate-200">
+        <div class="flex w-[500px] max-w-full items-center gap-2 rounded-md border border-[#173753] bg-[#041425] px-3 py-2 text-sm text-slate-200">
           <AdminDateInput v-model="fromDate" class="flex-1" />
           <span class="text-slate-500">~</span>
           <AdminDateInput v-model="toDate" class="flex-1" />
