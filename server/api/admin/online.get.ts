@@ -62,6 +62,19 @@ export default defineEventHandler(async (event) => {
       posMap.get(uid)!.push(sym)
     }
 
+    // 회원이 지금 보고 있는 화면(경로). 테이블이 아직 없거나 조회가 실패해도 목록 자체는 그대로 보여준다.
+    const presenceMap = new Map<number, { path: string; at: string }>()
+    try {
+      const { data: presence, error: e5 } = await supa.from('bitduck_user_presence').select('user_id, path, updated_at').in('user_id', ids)
+      if (!e5) {
+        for (const p of presence || []) {
+          presenceMap.set(Number((p as any).user_id), { path: String((p as any).path || ''), at: String((p as any).updated_at || '') })
+        }
+      }
+    } catch {
+      // ignore
+    }
+
     const userMap = new Map((users || []).map((u: any) => [Number(u.id), u]))
     const rows = ids.map((id) => {
       const u = userMap.get(Number(id))
@@ -76,6 +89,8 @@ export default defineEventHandler(async (event) => {
         ip: ip?.ip ?? null,
         lastSeenAt: ip?.at ?? null,
         online: true,
+        currentPath: presenceMap.get(Number(id))?.path ?? null,
+        currentPathAt: presenceMap.get(Number(id))?.at ?? null,
         positionSymbols: posMap.get(Number(id)) || []
       }
     })

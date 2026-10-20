@@ -37,12 +37,13 @@
               <th class="px-[10px] py-3 text-left">{{ t('권한', 'Role') }}</th>
               <th class="px-[10px] py-3 text-left">IP</th>
               <th class="px-[10px] py-3 text-left">{{ t('최근 접속', 'Last Seen') }}</th>
+              <th class="px-[10px] py-3 text-left">{{ t('접속 경로', 'Current Page') }}</th>
               <th class="px-[10px] py-3 text-center">{{ t('보유 포지션', 'Positions') }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="!loading && filtered.length === 0" class="border-b border-[#0d2438]">
-              <td colspan="7" class="px-[10px] py-8 text-center text-slate-500">{{ t('접속중인 유저가 없습니다.', 'No users are currently connected.') }}</td>
+              <td colspan="8" class="px-[10px] py-8 text-center text-slate-500">{{ t('접속중인 유저가 없습니다.', 'No users are currently connected.') }}</td>
             </tr>
             <tr v-for="u in filtered" :key="u.id" class="border-b border-[#0d2438] hover:bg-white/[0.02]">
               <td class="px-[10px] py-3 font-data text-slate-300">#{{ u.id }}</td>
@@ -55,6 +56,14 @@
               <td class="px-[10px] py-3 text-slate-300">{{ u.role }}</td>
               <td class="px-[10px] py-3 font-data text-slate-300">{{ u.ip || '—' }}</td>
               <td class="px-[10px] py-3 font-data text-slate-400">{{ u.lastSeenAt ? formatTime(u.lastSeenAt) : '—' }}</td>
+              <td class="px-[10px] py-3">
+                <template v-if="pathInfo(u)">
+                  <span class="font-semibold" :class="pathInfo(u)!.stale ? 'text-slate-500' : 'text-cyan-300'">{{ pathInfo(u)!.label }}</span>
+                  <span v-if="pathInfo(u)!.symbol" class="ml-1.5 rounded bg-amber-400/15 px-1.5 py-0.5 font-data text-[12px] font-semibold text-amber-400">{{ pathInfo(u)!.symbol }}</span>
+                  <span v-if="pathInfo(u)!.stale" class="ml-1.5 text-[12px] text-slate-500">{{ pathInfo(u)!.agoText }}</span>
+                </template>
+                <span v-else class="text-slate-600">—</span>
+              </td>
               <td class="px-[10px] py-3 text-center">
                 <button
                   v-if="u.positionSymbols.length"
@@ -93,6 +102,8 @@ type OnlineRow = {
   ip: string | null
   lastSeenAt: string | null
   online: boolean
+  currentPath: string | null
+  currentPathAt: string | null
   positionSymbols: string[]
 }
 
@@ -122,6 +133,57 @@ const filtered = computed(() => {
 })
 
 const lastUpdatedText = computed(() => (lastUpdated.value ? t(`갱신 ${lastUpdated.value}`, `Updated ${lastUpdated.value}`) : t('갱신 대기', 'Waiting to update')))
+
+// 회원 사이트 경로 -> 메뉴 이름. 차트 화면(/exchange/종목)이면 보고 있는 종목도 함께 보여준다.
+const PATH_LABELS: Array<[string, string, string]> = [
+  ['/buy', '자산구매', 'Buy Crypto'],
+  ['/markets', '마켓', 'Markets'],
+  ['/wallet', '내 지갑', 'My Wallet'],
+  ['/invest/balance', '투자내역 · 잔고', 'Investment · Balance'],
+  ['/invest/orders', '투자내역 · 주문', 'Investment · Orders'],
+  ['/invest/trades', '투자내역 · 체결', 'Investment · Trades'],
+  ['/support', '고객센터', 'Support'],
+  ['/me', '내 계정', 'My Account'],
+  ['/profile', '회원정보 변경', 'Edit Profile'],
+  ['/profit', '수익/손실 인증', 'Profit/Loss Proof'],
+  ['/legal/terms', '이용약관', 'Terms'],
+  ['/legal/privacy', '개인정보처리방침', 'Privacy'],
+  ['/auth', '로그인/가입', 'Login/Sign Up'],
+  ['/admin', '관리자 페이지', 'Admin Page']
+]
+const MARKET_TYPE_LABELS: Record<string, [string, string]> = {
+  coin: ['코인선물', 'Coin Futures'],
+  stock: ['파생상품', 'Derivative'],
+  kr: ['KR주식', 'KR Stocks']
+}
+const STALE_MS = 90 * 1000
+function pathInfo(u: OnlineRow): { label: string; symbol: string; stale: boolean; agoText: string } | null {
+  const p = u.currentPath
+  if (!p) return null
+  const at = u.currentPathAt ? new Date(u.currentPathAt).getTime() : 0
+  const age = at ? Date.now() - at : 0
+  const stale = age > STALE_MS
+  const mins = Math.max(1, Math.round(age / 60000))
+  const agoText = t(`${mins}분 전`, `${mins}m ago`)
+  const base = { stale, agoText }
+
+  const ex = p.match(/^\/exchange\/([^/]+)/)
+  if (ex) {
+    const symbol = decodeURIComponent(ex[1] || '')
+    return { ...base, label: t('차트', 'Chart'), symbol }
+  }
+  if (p === '/exchange') return { ...base, label: t('거래소', 'Exchange'), symbol: '' }
+  if (p === '/') return { ...base, label: t('메인 화면', 'Home'), symbol: '' }
+  const mk = p.match(/^\/markets\/([^/]+)/)
+  if (mk) {
+    const lab = MARKET_TYPE_LABELS[mk[1] || '']
+    return { ...base, label: lab ? t(`마켓 · ${lab[0]}`, `Markets · ${lab[1]}`) : t('마켓', 'Markets'), symbol: '' }
+  }
+  for (const [prefix, ko, en] of PATH_LABELS) {
+    if (p === prefix || p.startsWith(prefix + '/')) return { ...base, label: t(ko, en), symbol: '' }
+  }
+  return { ...base, label: p, symbol: '' }
+}
 
 const router = useRouter()
 function goToPositions() {
