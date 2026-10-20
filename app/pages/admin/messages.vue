@@ -190,7 +190,7 @@
                 </div>
               </div>
 
-              <div class="max-h-[440px] space-y-3 overflow-auto pr-1">
+              <div ref="messageListEl" class="max-h-[440px] space-y-3 overflow-auto pr-1">
                 <div
                   v-for="message in activeMessages"
                   :key="message.id"
@@ -325,7 +325,7 @@
             <div class="mt-1 text-xs text-slate-500">{{ t('접속 IP', 'Access IP') }}: {{ activeGuestThread.ip || t('미확인', 'Unknown') }}</div>
           </div>
 
-          <div class="max-h-[440px] space-y-3 overflow-auto pr-1">
+          <div ref="guestMessageListEl" class="max-h-[440px] space-y-3 overflow-auto pr-1">
             <div
               v-for="message in guestMessages"
               :key="message.id"
@@ -599,6 +599,28 @@ const recipients = ref<Recipient[]>([])
 const threads = ref<ThreadSummary[]>([])
 const activeThread = ref<ThreadSummary | null>(null)
 const activeMessages = ref<MessageItem[]>([])
+
+// 대화창은 항상 가장 아래(가장 최근 쪽지)가 보이는 상태로 열린다.
+const messageListEl = ref<HTMLElement | null>(null)
+const guestMessageListEl = ref<HTMLElement | null>(null)
+function scrollToBottom(el: HTMLElement | null) {
+  if (el) el.scrollTop = el.scrollHeight
+}
+function scrollChatsToBottom() {
+  scrollToBottom(messageListEl.value)
+  scrollToBottom(guestMessageListEl.value)
+}
+watch(
+  [activeMessages, () => activeThread.value?.threadKey, guestMessages, () => activeGuestThread.value?.guestId, activeTab],
+  () => {
+    nextTick(() => {
+      scrollChatsToBottom()
+      // 화면 그리기가 한 박자 늦는 경우(탭 전환 직후 등)를 대비해 한 번 더
+      requestAnimationFrame(scrollChatsToBottom)
+    })
+  },
+  { flush: 'post' }
+)
 const pendingResetRequest = ref<PendingResetRequest>(null)
 const selectedRecipientIds = ref<number[]>([])
 const recipientKeyword = ref('')
