@@ -102,7 +102,7 @@
               {{ t('로그아웃', 'Log Out') }}
             </button>
           </template>
-          <HeaderTools :show-bell="!!me && isAdmin && canViewAdminMenu('messages')" bell-target="/admin/messages" @navigate="startNavLoading" />
+          <HeaderTools bell-target="/admin/messages" @navigate="startNavLoading" />
         </div>
       </div>
     </header>
