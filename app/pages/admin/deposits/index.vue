@@ -55,9 +55,9 @@
         </div>
         <div class="flex items-center gap-2 rounded-md border border-[#173753] bg-[#041425] px-3 py-2 text-sm text-slate-200">
           <span class="whitespace-nowrap text-slate-400">{{ t('입금 일시', 'Date') }}</span>
-          <input v-model="filterDateFrom" type="date" class="date-input w-full bg-transparent outline-none" />
+          <AdminDateInput v-model="filterDateFrom" class="w-full" />
           <span class="text-slate-600">~</span>
-          <input v-model="filterDateTo" type="date" class="date-input w-full bg-transparent outline-none" />
+          <AdminDateInput v-model="filterDateTo" class="w-full" />
         </div>
         <select v-model="filterType" class="rounded-md border border-[#173753] bg-[#041425] px-3 py-2 text-sm text-slate-200 outline-none">
           <option value="">{{ t('구분: 전체', 'Type: All') }}</option>

@@ -35,9 +35,9 @@
         </div>
 
         <div class="flex items-center gap-2 rounded-md border border-[#173753] bg-[#041425] px-3 py-2 text-sm text-slate-200">
-          <input v-model="fromDate" type="date" class="date-input bg-transparent outline-none" />
+          <AdminDateInput v-model="fromDate" />
           <span class="text-slate-500">~</span>
-          <input v-model="toDate" type="date" class="date-input bg-transparent outline-none" />
+          <AdminDateInput v-model="toDate" />
         </div>
         <button class="rounded-md bg-white/10 px-3 py-2 text-sm text-slate-200 hover:bg-white/15" @click="load()">{{ t('조회', 'Search') }}</button>
         <button class="rounded-md bg-white/5 px-3 py-2 text-sm text-slate-300 hover:bg-white/10" @click="resetToThisWeek">{{ t('이번주', 'This Week') }}</button>

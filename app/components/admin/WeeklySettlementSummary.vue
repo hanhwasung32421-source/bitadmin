@@ -7,9 +7,9 @@
       <div class="ml-2 flex items-center gap-1">
         <button type="button" class="rounded-md bg-white/5 px-2 py-1.5 text-sm text-slate-300 hover:bg-white/10" :aria-label="t('이전 주', 'Previous week')" @click="shiftWeek(-1)">◀</button>
         <div class="flex items-center gap-2 rounded-md border border-[#173753] bg-[#041425] px-3 py-1.5 text-sm text-slate-200">
-          <input v-model="fromDate" type="date" class="date-input bg-transparent outline-none" />
+          <AdminDateInput v-model="fromDate" />
           <span class="text-slate-500">~</span>
-          <input v-model="toDate" type="date" class="date-input bg-transparent outline-none" />
+          <AdminDateInput v-model="toDate" />
         </div>
         <button type="button" class="rounded-md bg-white/5 px-2 py-1.5 text-sm text-slate-300 hover:bg-white/10" :aria-label="t('다음 주', 'Next week')" @click="shiftWeek(1)">▶</button>
       </div>

@@ -49,9 +49,9 @@
 
       <div class="grid gap-2 md:grid-cols-[360px_minmax(220px,1fr)_160px]">
         <div class="flex items-center gap-2 rounded-md border border-[#173753] bg-[#041425] px-3 py-2 text-sm text-slate-200">
-          <input v-model="fromDate" type="date" class="date-input w-full bg-transparent outline-none" />
+          <AdminDateInput v-model="fromDate" class="w-full" />
           <span class="text-slate-500">~</span>
-          <input v-model="toDate" type="date" class="date-input w-full bg-transparent outline-none" />
+          <AdminDateInput v-model="toDate" class="w-full" />
         </div>
         <input
           v-model.trim="userSearch"
