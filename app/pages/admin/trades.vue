@@ -13,6 +13,8 @@
       </div>
     </div>
 
+    <AdminWeeklySettlementSummary />
+
     <div class="space-y-4">
       <div class="grid gap-2 md:grid-cols-[360px_180px_minmax(240px,1fr)_120px_160px]">
         <div class="flex items-center gap-2 rounded-md border border-[#173753] bg-[#041425] px-3 py-2 text-sm text-slate-200">

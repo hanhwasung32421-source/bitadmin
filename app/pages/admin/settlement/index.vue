@@ -177,7 +177,7 @@ function thisWeekRange() {
   monday.setDate(monday.getDate() + diffToMonday)
   const sunday = new Date(monday)
   sunday.setDate(sunday.getDate() + 6)
-  const fmt = (d: Date) => d.toISOString().slice(0, 10)
+  const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` // 한국 시간 기준 날짜(toISOString은 UTC라 하루 밀림)
   return { from: fmt(monday), to: fmt(sunday) }
 }
 
