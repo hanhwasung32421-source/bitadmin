@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-dvh bg-[radial-gradient(circle_at_top,_rgba(8,145,178,0.08),transparent_32%),linear-gradient(180deg,#020817,#03111f_45%,#020817)] text-slate-100">
+  <div class="site-bg min-h-dvh bg-[radial-gradient(circle_at_top,_rgba(8,145,178,0.08),transparent_32%),linear-gradient(180deg,#020817,#03111f_45%,#020817)] text-slate-100">
     <Transition name="nav-loading-fade">
       <div v-if="navLoading" class="fixed inset-0 z-[120] flex items-center justify-center bg-[#020817]/55 backdrop-blur-[2px]">
         <div class="rounded-2xl border border-cyan-400/15 bg-[#07111b]/90 px-5 py-4 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
@@ -20,7 +20,7 @@
     </Transition>
 
     <!-- 상단 가로 메뉴 -->
-    <header class="sticky top-0 z-50 border-b border-cyan-500/10 bg-[#020b16]/90 backdrop-blur">
+    <header class="site-header sticky top-0 z-50 border-b border-cyan-500/10 bg-[#020b16]/90 backdrop-blur">
       <div class="flex w-full items-center gap-3 px-3 py-2.5 md:px-5">
         <NuxtLink :to="homeTarget" class="mr-2 shrink-0" @click="startNavLoading(homeTarget)">
           <BrandLogo />
@@ -32,7 +32,7 @@
             :key="item.to"
             :to="item.to"
             class="rounded-md px-3 py-1.5 transition hover:bg-cyan-400/10 hover:text-white"
-            :class="isActive(item.to) ? 'bg-cyan-400/15 text-white' : ''"
+            :class="!item.noActive && isActive(item.to) ? 'bg-cyan-400/15 text-white' : ''"
             @click="startNavLoading(item.to)"
           >
             {{ t(item.ko, item.en) }}
@@ -98,26 +98,11 @@
           </span>
           <template v-if="me && isAdmin">
             <span class="hidden text-slate-300 sm:inline">{{ me.name || me.username }}</span>
-            <NuxtLink
-              v-if="canViewAdminMenu('messages')"
-              to="/admin/messages"
-              class="relative rounded-md border px-3 py-1.5 transition"
-              :class="unread > 0 ? 'border-amber-400/60 bg-amber-400/15 text-amber-300 hover:bg-amber-400/20' : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'"
-              @click="startNavLoading('/admin/messages')"
-            >
-              <span>🔔</span>
-              <span
-                v-if="unread > 0"
-                class="absolute -right-1.5 -top-1.5 rounded-full bg-amber-400 px-1.5 py-0.5 text-[11px] font-bold leading-none text-slate-900"
-              >
-                {{ unread }}
-              </span>
-            </NuxtLink>
             <button class="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 hover:bg-white/10" @click="logout">
               {{ t('로그아웃', 'Log Out') }}
             </button>
           </template>
-          <LocaleSwitch />
+          <HeaderTools :show-bell="!!me && isAdmin && canViewAdminMenu('messages')" bell-target="/admin/messages" @navigate="startNavLoading" />
         </div>
       </div>
     </header>
@@ -160,6 +145,21 @@ if (me.value) {
 onMounted(() => {
   if (me.value) startUnreadPolling()
 })
+// 로그인 페이지에서 로그인한 직후(레이아웃은 그대로 유지됨)에도 알람/빨간 점이 바로 동작하도록,
+// 로그인 상태가 바뀔 때마다 쪽지 폴링을 시작/중지한다.
+watch(
+  () => me.value?.id,
+  async (id, prev) => {
+    if (!process.client || id === prev) return
+    if (id) {
+      await refreshUnread()
+      startUnreadPolling()
+    } else {
+      stopUnreadPolling()
+      unread.value = 0
+    }
+  }
+)
 onBeforeUnmount(() => {
   stopUnreadPolling()
 })
@@ -174,7 +174,7 @@ function canViewAdminMenu(key: string) {
   return (me.value as any)?.permissions?.menus?.[key]?.view !== false
 }
 
-type NavItem = { to: string; ko: string; en: string }
+type NavItem = { to: string; ko: string; en: string; permKey?: string; noActive?: boolean }
 const ADMIN_MENU_ITEMS: Record<string, NavItem> = {
   members: { to: '/admin/members', ko: '회원 목록', en: 'Members' },
   online: { to: '/admin/online', ko: '실시간 접속', en: 'Online Now' },
@@ -182,7 +182,9 @@ const ADMIN_MENU_ITEMS: Record<string, NavItem> = {
   trades: { to: '/admin/trades', ko: '거래 내역', en: 'Trade History' },
   positions: { to: '/admin/positions', ko: '포지션 목록', en: 'Positions' },
   messages: { to: '/admin/messages', ko: '쪽지관리', en: 'Messages' },
-  settlement: { to: '/admin/settlement', ko: '정산내역', en: 'Settlement' }
+  settlement: { to: '/admin/settlement', ko: '정산내역', en: 'Settlement' },
+  // KTX 사이트에서 관리자가 고객센터를 누르면 쪽지관리(/admin/messages)로 들어가는 것과 동일하다.
+  support: { to: '/admin/messages', ko: '고객센터', en: 'Support', permKey: 'messages', noActive: true }
 }
 // 이 사이트의 상단 메뉴 순서는 위 ADMIN_MENU_ITEMS 선언 순서로 고정한다.
 const orderedKeys = ref<string[]>(Object.keys(ADMIN_MENU_ITEMS))
@@ -193,7 +195,8 @@ const navItems = computed<NavItem[]>(() => {
   // 기존 관리자 대시보드(설정/역할/이벤트 관리 등)는 "어드민"으로 이름을 바꿔 총관리자에게만 보인다.
   if (isSuper.value) list.push({ to: '/admin', ko: '어드민', en: 'Admin' })
   for (const key of orderedKeys.value) {
-    if (canViewAdminMenu(key)) list.push(ADMIN_MENU_ITEMS[key]!)
+    const item = ADMIN_MENU_ITEMS[key]!
+    if (canViewAdminMenu(item.permKey || key)) list.push(item)
   }
   return list
 })
