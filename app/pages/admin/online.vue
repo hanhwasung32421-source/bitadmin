@@ -3,7 +3,7 @@
     <div class="flex items-end justify-between gap-3">
       <div>
         <h1 class="text-xl font-semibold">{{ t('실시간 접속', 'Live Connections') }}</h1>
-        <p class="mt-1 text-sm text-slate-400">{{ t('1초마다 갱신됩니다.', 'Refreshes every second.') }}</p>
+        <p class="mt-1 text-sm text-slate-400">{{ t('5초마다 갱신됩니다.', 'Refreshes every 5 seconds.') }}</p>
       </div>
       <div class="flex items-center gap-2">
         <NuxtLink to="/admin" class="rounded-md bg-white/10 px-3 py-2 text-sm hover:bg-white/15">{{ t('대시보드', 'Dashboard') }}</NuxtLink>
@@ -215,7 +215,7 @@ async function load(silent = false) {
 
 onMounted(async () => {
   await load()
-  timer = setInterval(() => load(true).catch(() => {}), 1000)
+  timer = setInterval(() => load(true).catch(() => {}), 5000)
 })
 
 onBeforeUnmount(() => {

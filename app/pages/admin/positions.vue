@@ -3,7 +3,7 @@
     <div class="flex items-end justify-between gap-3">
       <div>
         <h1 class="text-xl font-semibold">{{ t('포지션 목록', 'Positions') }}</h1>
-        <p class="mt-1 text-sm text-slate-400">{{ t('실시간 오픈 포지션을 1초마다 갱신합니다.', 'Live open positions refresh every second.') }}</p>
+        <p class="mt-1 text-sm text-slate-400">{{ t('실시간 오픈 포지션을 5초마다 갱신합니다.', 'Live open positions refresh every 5 seconds.') }}</p>
       </div>
       <div class="flex items-center gap-2">
         <NuxtLink to="/admin" class="rounded-md bg-white/10 px-3 py-2 text-sm hover:bg-white/15">{{ t('대시보드', 'Dashboard') }}</NuxtLink>
@@ -277,7 +277,7 @@ onMounted(async () => {
   await load()
   pollTimer = setInterval(() => {
     load(true).catch(() => {})
-  }, 1000)
+  }, 5000)
 })
 
 onBeforeUnmount(() => {

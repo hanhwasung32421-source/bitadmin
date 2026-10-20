@@ -248,9 +248,9 @@ watch(pageSizeInput, (v) => {
   if (page.value > totalPages.value) page.value = totalPages.value
 })
 
-async function load(reset = false) {
+async function load(reset = false, silent = false) {
   if (reset) page.value = 1
-  loading.value = true
+  if (!silent) loading.value = true
   try {
     const res = await $fetch<{ items: TradeRow[] }>('/api/admin/trades', { query: { limit: 200, offset: 0 } })
     items.value = res.items || []
@@ -265,6 +265,8 @@ async function load(reset = false) {
 onMounted(() => {
   load(true).catch(() => {})
 })
+// 이 화면이 열려 있는 동안 5초마다 자동 갱신(페이지 번호/필터는 그대로 유지)
+useAutoRefresh(() => load(false, true))
 </script>
 
 <style scoped>

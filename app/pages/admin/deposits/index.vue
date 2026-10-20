@@ -547,8 +547,8 @@ function statusBadgeClass(status: DepositRow['status']) {
   return 'ring-1 bg-amber-500/15 text-amber-200 ring-amber-400/20'
 }
 
-async function load() {
-  loading.value = true
+async function load(silent = false) {
+  if (!silent) loading.value = true
   try {
     const res = await $fetch<any>('/api/admin/deposits')
     items.value = res.items || []
@@ -589,6 +589,8 @@ onMounted(() => {
   load().catch(() => {})
   loadKrwRate().catch(() => {})
 })
+// 이 화면이 열려 있는 동안 5초마다 자동 갱신
+useAutoRefresh(() => load(true))
 </script>
 
 <style scoped>
