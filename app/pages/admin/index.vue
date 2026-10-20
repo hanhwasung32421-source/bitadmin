@@ -98,6 +98,7 @@
                 <th class="whitespace-nowrap px-[10px] py-3 text-center">{{ t('하부보기', 'Downline') }}</th>
                 <th class="whitespace-nowrap px-[10px] py-3 text-center">{{ t('비밀번호', 'Password') }}</th>
                 <th class="whitespace-nowrap px-[10px] py-3 text-center">{{ t('로그인', 'Login') }}</th>
+                <th class="whitespace-nowrap px-[10px] py-3 text-center">{{ t('삭제', 'Delete') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -217,6 +218,15 @@
                       {{ t('로그인', 'Login') }}
                     </button>
                   </td>
+                  <td class="px-[10px] py-2.5 text-center">
+                    <button
+                      class="whitespace-nowrap rounded-md bg-rose-500/15 px-3 py-1.5 text-sm text-rose-200 ring-1 ring-rose-400/30 hover:bg-rose-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+                      :disabled="isLockedUser(u) || u.id === me?.id"
+                      @click="askDeleteUser(u)"
+                    >
+                      {{ t('삭제', 'Delete') }}
+                    </button>
+                  </td>
                 </template>
               </tr>
             </tbody>
@@ -252,6 +262,35 @@
 
         <p v-if="error" class="mt-3 text-sm text-red-300">{{ error }}</p>
         <p v-if="msg" class="mt-3 text-sm text-emerald-300">{{ msg }}</p>
+      </div>
+    </div>
+
+    <!-- 유저 삭제 확인 팝업: Enter 또는 삭제 버튼 = 삭제, Esc 또는 바깥 클릭 = 닫기 -->
+    <div
+      v-if="deleteTarget"
+      class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 px-4"
+      @click.self="closeDeleteModal"
+    >
+      <div class="w-full max-w-sm rounded-2xl border border-[#12314a] bg-[#03101d] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
+        <div class="text-base font-semibold text-slate-100">{{ t('삭제할까요?', 'Delete this user?') }}</div>
+        <p class="mt-2 text-sm text-slate-300">
+          <span class="font-semibold text-rose-300">{{ deleteTarget.username }}</span>
+          {{ t('계정과 이 회원의 잔고·거래·쪽지 등 모든 데이터가 삭제되며 되돌릴 수 없습니다.', 'The account and all of its data (balance, trades, messages, etc.) will be permanently deleted.') }}
+        </p>
+        <p v-if="deleteError" class="mt-2 text-sm text-rose-300">{{ deleteError }}</p>
+        <div class="mt-5 flex justify-end gap-2">
+          <button class="rounded-md bg-white/10 px-4 py-2 text-sm text-slate-200 hover:bg-white/15" :disabled="deleting" @click="closeDeleteModal">
+            {{ t('취소 (Esc)', 'Cancel (Esc)') }}
+          </button>
+          <button
+            ref="deleteConfirmBtn"
+            class="rounded-md bg-rose-500/80 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-50"
+            :disabled="deleting"
+            @click="confirmDeleteUser"
+          >
+            {{ deleting ? t('삭제 중...', 'Deleting...') : t('삭제 (Enter)', 'Delete (Enter)') }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1282,6 +1321,52 @@ async function resetUserPassword(userId: number) {
     userResetting.value = null
   }
 }
+
+// 유저 삭제: 팝업에서 Enter/삭제 클릭 = 삭제, Esc = 닫기
+const deleteTarget = ref<AdminUserRow | null>(null)
+const deleting = ref(false)
+const deleteError = ref<string | null>(null)
+const deleteConfirmBtn = ref<HTMLButtonElement | null>(null)
+
+function askDeleteUser(u: AdminUserRow) {
+  deleteError.value = null
+  deleteTarget.value = u
+  nextTick(() => deleteConfirmBtn.value?.focus())
+}
+function closeDeleteModal() {
+  if (deleting.value) return
+  deleteTarget.value = null
+  deleteError.value = null
+}
+async function confirmDeleteUser() {
+  const target = deleteTarget.value
+  if (!target || deleting.value) return
+  deleting.value = true
+  deleteError.value = null
+  try {
+    await $fetch('/api/admin/users/delete', { method: 'POST', body: { userId: target.id } })
+    deleteTarget.value = null
+    msg.value = t(`${target.username} 계정을 삭제했습니다.`, `Deleted user ${target.username}.`)
+    await load()
+    msg.value = t(`${target.username} 계정을 삭제했습니다.`, `Deleted user ${target.username}.`)
+  } catch (e: any) {
+    deleteError.value = e?.data?.statusMessage || t('삭제 실패', 'Delete failed')
+  } finally {
+    deleting.value = false
+  }
+}
+function onDeleteKey(e: KeyboardEvent) {
+  if (!deleteTarget.value) return
+  if (e.key === 'Escape') {
+    e.preventDefault()
+    closeDeleteModal()
+  } else if (e.key === 'Enter') {
+    e.preventDefault()
+    confirmDeleteUser()
+  }
+}
+onMounted(() => window.addEventListener('keydown', onDeleteKey))
+onBeforeUnmount(() => window.removeEventListener('keydown', onDeleteKey))
 
 async function loginAsUser(userId: number) {
   if (process.client && !window.confirm(t('이 유저 계정으로 새 창에서 로그인할까요? (관리자 세션은 이 창에 그대로 유지됩니다)', 'Log in as this user in a new window? (Your admin session stays active in this window.)'))) return
