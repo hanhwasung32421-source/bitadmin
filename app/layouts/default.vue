@@ -252,10 +252,30 @@ async function copyReferralLink() {
   }
 }
 
+let navLoadingTimer: any = null
 function startNavLoading(target?: string) {
   if (target && String(target) === String(route.path)) return
   navLoading.value = true
+  // 안전장치: 이동이 끝나는 신호를 못 받아도 로딩 표시가 영원히 남지 않게 한다.
+  if (process.client) {
+    if (navLoadingTimer) clearTimeout(navLoadingTimer)
+    navLoadingTimer = setTimeout(() => {
+      navLoading.value = false
+    }, 8000)
+  }
 }
+
+// 로그인이 필요한 메뉴를 눌렀는데 로그인 화면으로 되돌려지는 경우(주소가 안 바뀜)에도 로딩 표시가 꺼지도록 라우터 훅을 쓴다.
+const navRouter = useRouter()
+const stopAfterEach = navRouter.afterEach(() => {
+  setTimeout(() => {
+    navLoading.value = false
+  }, 180)
+})
+onBeforeUnmount(() => {
+  stopAfterEach()
+  if (navLoadingTimer) clearTimeout(navLoadingTimer)
+})
 
 watch(
   () => route.fullPath,
