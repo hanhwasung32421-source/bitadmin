@@ -53,7 +53,7 @@
           <span class="text-slate-600">~</span>
           <input v-model="filterAmountMax" type="number" :placeholder="t('최대(원)', 'Max (KRW)')" class="w-full bg-transparent text-right outline-none placeholder:text-slate-600" />
         </div>
-        <div class="flex items-center gap-2 rounded-md border border-[#173753] bg-[#041425] px-3 py-2 text-sm text-slate-200">
+        <div class="flex items-center gap-2 md:col-span-2 rounded-md border border-[#173753] bg-[#041425] px-3 py-2 text-sm text-slate-200">
           <span class="whitespace-nowrap text-slate-400">{{ t('입금 일시', 'Date') }}</span>
           <AdminDateInput v-model="filterDateFrom" class="w-full" />
           <span class="text-slate-600">~</span>
