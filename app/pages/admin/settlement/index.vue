@@ -42,7 +42,7 @@
         <button class="rounded-md bg-white/10 px-3 py-2 text-sm text-slate-200 hover:bg-white/15" @click="load()">{{ t('조회', 'Search') }}</button>
         <button class="rounded-md bg-white/5 px-3 py-2 text-sm text-slate-300 hover:bg-white/10" @click="resetToThisWeek">{{ t('이번주', 'This Week') }}</button>
 
-        <div class="ml-auto rounded-md border border-cyan-500/20 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-100">
+        <div class="ml-auto w-[360px] max-w-full rounded-md border border-cyan-500/20 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-100">
           <div>{{ t('기간 총 정산금', 'Total Settlement (Period)') }} <span class="font-data text-base font-semibold">{{ fmtKrw(total) }}</span></div>
           <div class="text-xs text-cyan-300/70">({{ t(`정산비율 ${percent}%, 환율 ${fmt0(krwPerUsdt)}원/USDT`, `Rate ${percent}%, FX ${fmt0(krwPerUsdt)} KRW/USDT`) }})</div>
           <div class="font-data text-xs text-cyan-300/70">({{ fmt2(total) }})</div>
