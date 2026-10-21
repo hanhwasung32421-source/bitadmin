@@ -536,7 +536,7 @@
           <div v-for="v in PROFIT_CARD_PREVIEW_VARIANTS" :key="v.key" class="flex flex-col items-center gap-3">
             <p class="text-sm text-slate-400">{{ t(v.titleKo, v.titleEn) }}</p>
             <div
-              class="relative cursor-pointer shadow-[0_10px_32px_rgba(0,0,0,0.24)]"
+              class="relative isolate cursor-pointer shadow-[0_10px_32px_rgba(0,0,0,0.24)]"
               :style="{
                 width: Math.min(300, profitCardDraft.cardWidth) + 'px',
                 padding: profitCardDraft.cardPaddingY + 'px ' + profitCardDraft.cardPaddingX + 'px',
@@ -553,6 +553,19 @@
               }"
               @click="selectTarget('card')"
             >
+              <!-- 배경 그림: 글자 뒤에 깔리고 투명도가 적용된다 -->
+              <div
+                v-if="profitCardDraft.bgImage"
+                class="pointer-events-none absolute inset-0"
+                :style="{
+                  zIndex: -1,
+                  borderRadius: profitCardDraft.cardRadius + 'px',
+                  backgroundImage: 'url(' + profitCardDraft.bgImage + ')',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  opacity: profitCardDraft.bgImageOpacity / 100
+                }"
+              />
               <div class="flex flex-col items-center">
                 <span
                   class="inline-flex cursor-pointer items-center gap-2 rounded"
@@ -725,6 +738,33 @@
             >
               <option v-for="f in PROFIT_CARD_FONT_OPTIONS" :key="f.value" :value="f.value" :style="{ fontFamily: f.value }">{{ t(f.labelKo, f.labelEn) }}</option>
             </select>
+          </div>
+
+          <div v-if="selectedTarget === 'card'" class="flex flex-col gap-2 rounded-lg border border-white/10 bg-black/20 p-3">
+            <div class="text-xs font-semibold text-slate-300">{{ t('배경 그림', 'Background Image') }}</div>
+            <div class="flex flex-wrap items-center gap-2">
+              <label class="cursor-pointer rounded bg-white/10 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/15">
+                {{ profitCardDraft.bgImage ? t('그림 바꾸기', 'Change Image') : t('그림 넣기', 'Add Image') }}
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden" @change="onBgImageFile" />
+              </label>
+              <button
+                type="button"
+                class="rounded bg-rose-500/15 px-3 py-1.5 text-xs text-rose-200 ring-1 ring-rose-400/30 hover:bg-rose-500/25 disabled:cursor-not-allowed disabled:opacity-40"
+                :disabled="!profitCardDraft.bgImage"
+                @click="clearBgImage"
+              >
+                {{ t('배경 삭제', 'Remove Background') }}
+              </button>
+            </div>
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center justify-between text-xs text-slate-400">
+                <span>{{ t('배경 투명도', 'Background Opacity') }}</span>
+                <span class="font-mono text-slate-300">{{ profitCardDraft.bgImageOpacity }}%</span>
+              </div>
+              <input v-model.number="profitCardDraft.bgImageOpacity" type="range" min="0" max="100" :disabled="!profitCardDraft.bgImage" class="w-full accent-indigo-400 disabled:opacity-40" />
+              <p class="text-[11px] text-slate-500">{{ t('0%는 완전 투명, 100%는 그림 그대로입니다. 조정 후 아래 "저장"을 눌러야 적용됩니다.', '0% is fully transparent, 100% shows the image as is. Press "Save" below to apply.') }}</p>
+            </div>
+            <p v-if="bgImageError" class="text-xs text-rose-300">{{ bgImageError }}</p>
           </div>
 
           <div v-for="f in currentNumberFields" :key="f.key" class="flex flex-col gap-1">
@@ -1819,6 +1859,8 @@ type ProfitCardStyle = {
   bgColor: string
   gridColor: string
   gridSize: number
+  bgImage: string
+  bgImageOpacity: number
   positiveColor: string
   negativeColor: string
   logoFontSize: number
@@ -1854,6 +1896,8 @@ const DEFAULT_PROFIT_CARD_STYLE: ProfitCardStyle = {
   bgColor: '#06121d',
   gridColor: '#04101a',
   gridSize: 28,
+  bgImage: '',
+  bgImageOpacity: 35,
   positiveColor: '#22c55e',
   negativeColor: '#ef4444',
   logoFontSize: 16,
@@ -2086,6 +2130,56 @@ const profitCardDraft = reactive<ProfitCardStyle>({ ...DEFAULT_PROFIT_CARD_STYLE
 const profitCardSaving = ref(false)
 const profitCardError = ref<string | null>(null)
 const profitCardMsg = ref<string | null>(null)
+
+// 카드 배경 그림: 올린 그림을 작게 줄여서(최대 700px, JPEG) 설정에 함께 저장한다.
+const bgImageError = ref<string | null>(null)
+function clearBgImage() {
+  profitCardDraft.bgImage = ''
+  bgImageError.value = null
+}
+async function onBgImageFile(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  bgImageError.value = null
+  if (!file) return
+  if (!file.type.startsWith('image/')) {
+    bgImageError.value = t('그림 파일만 넣을 수 있습니다.', 'Only image files are allowed.')
+    return
+  }
+  try {
+    const url = URL.createObjectURL(file)
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image()
+      el.onload = () => resolve(el)
+      el.onerror = () => reject(new Error('load'))
+      el.src = url
+    })
+    URL.revokeObjectURL(url)
+    let maxSide = 700
+    let quality = 0.8
+    let out = ''
+    for (let i = 0; i < 6; i++) {
+      const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight))
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.max(1, Math.round(img.naturalWidth * scale))
+      canvas.height = Math.max(1, Math.round(img.naturalHeight * scale))
+      const ctx = canvas.getContext('2d')
+      if (!ctx) throw new Error('canvas')
+      ctx.fillStyle = '#000000'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      out = canvas.toDataURL('image/jpeg', quality)
+      if (out.length <= 380000) break
+      maxSide = Math.round(maxSide * 0.8)
+      quality = Math.max(0.5, quality - 0.1)
+    }
+    if (out.length > 390000) throw new Error('size')
+    profitCardDraft.bgImage = out
+  } catch {
+    bgImageError.value = t('그림을 불러오지 못했습니다. 다른 그림으로 시도해주세요.', 'Could not load that image. Please try another one.')
+  }
+}
 
 function resetProfitCardStyle() {
   Object.assign(profitCardDraft, DEFAULT_PROFIT_CARD_STYLE, { offsets: {} })
