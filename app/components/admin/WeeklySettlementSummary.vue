@@ -6,10 +6,11 @@
 
       <div class="ml-2 flex items-center gap-1">
         <button type="button" class="rounded-md bg-white/5 px-2 py-1.5 text-sm text-slate-300 hover:bg-white/10" :aria-label="t('이전 주', 'Previous week')" @click="shiftWeek(-1)">◀</button>
-        <div class="flex items-center gap-2 rounded-md border border-[#173753] bg-[#041425] px-3 py-1.5 text-sm text-slate-200">
-          <AdminDateInput v-model="fromDate" />
-          <span class="text-slate-500">~</span>
-          <AdminDateInput v-model="toDate" />
+        <div class="flex w-[440px] max-w-full items-center gap-2 rounded-md border border-[#173753] bg-[#041425] px-3 py-1.5 text-sm text-slate-200">
+          <span class="whitespace-nowrap text-slate-400">{{ t('정산 기간', 'Period') }}</span>
+          <AdminDateInput v-model="fromDate" class="w-full" />
+          <span class="text-slate-600">~</span>
+          <AdminDateInput v-model="toDate" class="w-full" />
         </div>
         <button type="button" class="rounded-md bg-white/5 px-2 py-1.5 text-sm text-slate-300 hover:bg-white/10" :aria-label="t('다음 주', 'Next week')" @click="shiftWeek(1)">▶</button>
       </div>
@@ -17,19 +18,17 @@
       <button type="button" class="rounded-md bg-white/5 px-3 py-1.5 text-sm text-slate-300 hover:bg-white/10" @click="resetToThisWeek">{{ t('이번주', 'This Week') }}</button>
     </div>
 
-    <div class="mt-3 grid gap-2 sm:grid-cols-2">
-      <div
-        v-for="s in sections"
-        :key="s.type"
-        class="rounded-md border border-cyan-500/20 bg-cyan-500/10 px-4 py-2.5 text-sm text-cyan-100"
-      >
-        <div class="text-xs text-cyan-300/80">
+    <!-- 입출금 내역과 같은 한 줄 요약 -->
+    <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-300">
+      <template v-for="(s, i) in sections" :key="s.type">
+        <span v-if="i > 0" class="text-slate-600">·</span>
+        <span>
           {{ s.type === 'loss' ? t('손실정산', 'Loss Settlement') : t('레퍼럴정산', 'Referral Settlement') }}
-          <span v-if="s.loaded"> · {{ t(`정산비율 ${s.percent}%`, `Rate ${s.percent}%`) }}</span>
-        </div>
-        <div class="font-data text-lg font-semibold">{{ s.loaded ? fmtKrw(s.total, s.krwPerUsdt) : '—' }}</div>
-        <div v-if="s.loaded" class="text-xs text-cyan-300/70">{{ t(`정산 대상 ${s.count}명`, `${s.count} member(s)`) }}</div>
-      </div>
+          <span v-if="s.loaded" class="text-slate-500">({{ t(`정산비율 ${s.percent}%`, `Rate ${s.percent}%`) }})</span>:
+          <span class="font-data-plain text-cyan-300">{{ s.loaded ? fmtKrw(s.total, s.krwPerUsdt) : '—' }}</span>
+          <span v-if="s.loaded" class="text-slate-500">{{ t(` · ${s.count}명`, ` · ${s.count}`) }}</span>
+        </span>
+      </template>
     </div>
     <p v-if="error" class="mt-2 text-sm text-rose-300">{{ error }}</p>
   </div>

@@ -35,18 +35,22 @@
         </div>
 
         <div class="flex w-[500px] max-w-full items-center gap-2 rounded-md border border-[#173753] bg-[#041425] px-3 py-2 text-sm text-slate-200">
-          <AdminDateInput v-model="fromDate" class="flex-1" />
-          <span class="text-slate-500">~</span>
-          <AdminDateInput v-model="toDate" class="flex-1" />
+          <span class="whitespace-nowrap text-slate-400">{{ t('정산 기간', 'Period') }}</span>
+          <AdminDateInput v-model="fromDate" class="w-full" />
+          <span class="text-slate-600">~</span>
+          <AdminDateInput v-model="toDate" class="w-full" />
         </div>
         <button class="rounded-md bg-white/10 px-3 py-2 text-sm text-slate-200 hover:bg-white/15" @click="load()">{{ t('조회', 'Search') }}</button>
         <button class="rounded-md bg-white/5 px-3 py-2 text-sm text-slate-300 hover:bg-white/10" @click="resetToThisWeek">{{ t('이번주', 'This Week') }}</button>
+      </div>
 
-        <div class="ml-auto w-[360px] max-w-full rounded-md border border-cyan-500/20 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-100">
-          <div>{{ t('기간 총 정산금', 'Total Settlement (Period)') }} <span class="font-data text-base font-semibold">{{ fmtKrw(total) }}</span></div>
-          <div class="text-xs text-cyan-300/70">({{ t(`정산비율 ${percent}%, 환율 ${fmt0(krwPerUsdt)}원/USDT`, `Rate ${percent}%, FX ${fmt0(krwPerUsdt)} KRW/USDT`) }})</div>
-          <div class="font-data text-xs text-cyan-300/70">({{ fmt2(total) }})</div>
-        </div>
+      <!-- 입출금 내역과 같은 한 줄 요약 -->
+      <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-300">
+        <span>{{ t('조회', 'Results') }}: <span class="font-semibold text-white">{{ items.length }}</span>{{ t('명', '') }}</span>
+        <span class="text-slate-600">·</span>
+        <span>{{ t('기간 총 정산금', 'Total Settlement') }}: <span class="font-data-plain text-cyan-300">{{ fmtKrw(total) }}</span></span>
+        <span class="text-slate-600">·</span>
+        <span class="text-slate-400">{{ t(`정산비율 ${percent}% / 환율 ${fmt0(krwPerUsdt)}원/USDT`, `Rate ${percent}% / FX ${fmt0(krwPerUsdt)} KRW/USDT`) }} ({{ fmt2(total) }} USDT)</span>
       </div>
 
       <div class="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-300">
