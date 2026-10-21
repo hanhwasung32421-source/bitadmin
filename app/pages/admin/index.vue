@@ -566,6 +566,17 @@
                   opacity: profitCardDraft.bgImageOpacity / 100
                 }"
               />
+              <!-- 그림 위에 씌우는 색 필터(글자는 이 위에 써진다) -->
+              <div
+                v-if="profitCardDraft.bgImage && profitCardDraft.bgFilterOpacity > 0"
+                class="pointer-events-none absolute inset-0"
+                :style="{
+                  zIndex: -1,
+                  borderRadius: profitCardDraft.cardRadius + 'px',
+                  backgroundColor: profitCardDraft.bgFilterColor,
+                  opacity: profitCardDraft.bgFilterOpacity / 100
+                }"
+              />
               <div class="flex flex-col items-center">
                 <span
                   class="inline-flex cursor-pointer items-center gap-2 rounded"
@@ -755,6 +766,29 @@
               </div>
               <input v-model.number="profitCardDraft.bgImageOpacity" type="range" min="0" max="100" :disabled="!profitCardDraft.bgImage" class="w-full accent-indigo-400 disabled:opacity-40" />
               <p class="text-[11px] text-slate-500">{{ t('0%는 완전 투명, 100%는 그림 그대로입니다. 조정 후 아래 "저장"을 눌러야 적용됩니다.', '0% is fully transparent, 100% shows the image as is. Press "Save" below to apply.') }}</p>
+            </div>
+            <div class="mt-1 flex flex-col gap-2 border-t border-white/10 pt-3">
+              <div class="text-xs font-semibold text-slate-300">{{ t('그림 위 필터', 'Image Filter') }}</div>
+              <label class="flex flex-col gap-1">
+                <span class="text-xs text-slate-400">{{ t('필터 색', 'Filter Color') }}</span>
+                <span class="flex items-center gap-2">
+                  <input v-model="profitCardDraft.bgFilterColor" type="color" :disabled="!profitCardDraft.bgImage" class="h-8 w-10 cursor-pointer rounded border border-white/10 bg-transparent p-0 disabled:opacity-40" />
+                  <input
+                    v-model="profitCardDraft.bgFilterColor"
+                    type="text"
+                    :disabled="!profitCardDraft.bgImage"
+                    class="w-full rounded border border-white/10 bg-black/30 px-2 py-1 font-mono text-xs text-slate-200 outline-none focus:border-cyan-400/40 disabled:opacity-40"
+                  />
+                </span>
+              </label>
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center justify-between text-xs text-slate-400">
+                  <span>{{ t('필터 투명도', 'Filter Opacity') }}</span>
+                  <span class="font-mono text-slate-300">{{ profitCardDraft.bgFilterOpacity }}%</span>
+                </div>
+                <input v-model.number="profitCardDraft.bgFilterOpacity" type="range" min="0" max="100" :disabled="!profitCardDraft.bgImage" class="w-full accent-indigo-400 disabled:opacity-40" />
+                <p class="text-[11px] text-slate-500">{{ t('그림 위에 이 색이 씌워지고, 글자는 필터 위에 써집니다. 0%는 필터 없음입니다.', 'This color is laid over the image and the text sits on top of the filter. 0% means no filter.') }}</p>
+              </div>
             </div>
             <p v-if="bgImageError" class="text-xs text-rose-300">{{ bgImageError }}</p>
           </div>
@@ -1855,6 +1889,8 @@ type ProfitCardStyle = {
   gridSize: number
   bgImage: string
   bgImageOpacity: number
+  bgFilterColor: string
+  bgFilterOpacity: number
   positiveColor: string
   negativeColor: string
   logoFontSize: number
@@ -1892,6 +1928,8 @@ const DEFAULT_PROFIT_CARD_STYLE: ProfitCardStyle = {
   gridSize: 28,
   bgImage: '',
   bgImageOpacity: 35,
+  bgFilterColor: '#000000',
+  bgFilterOpacity: 0,
   positiveColor: '#22c55e',
   negativeColor: '#ef4444',
   logoFontSize: 16,
