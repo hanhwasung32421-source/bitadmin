@@ -27,23 +27,40 @@
         </NuxtLink>
 
         <nav v-if="isAdmin" class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto whitespace-nowrap text-[15px] text-slate-300">
-          <NuxtLink
-            v-for="item in navItems"
-            :key="item.to"
-            :to="item.to"
-            class="rounded-md px-3 py-1.5 transition hover:bg-cyan-400/10 hover:text-white"
-            :class="!item.noActive && isActive(item.to) ? 'bg-cyan-400/15 text-white' : ''"
-            @click="startNavLoading(item.to)"
-          >
-            {{ t(item.ko, item.en) }}
-          </NuxtLink>
+          <template v-for="entry in navEntries" :key="entry.key">
+            <NuxtLink
+              v-if="entry.type === 'link'"
+              :to="entry.item.to"
+              class="rounded-md px-3 py-1.5 transition hover:bg-cyan-400/10 hover:text-white"
+              :class="isActive(entry.item.to) ? 'bg-cyan-400/15 text-white' : ''"
+              @mouseenter="closeMenu"
+              @click="startNavLoading(entry.item.to)"
+            >
+              {{ t(entry.item.ko, entry.item.en) }}
+            </NuxtLink>
+            <!-- 마우스를 올리면 아래로 드롭다운이 펼쳐지는 그룹 메뉴(클릭해도 열고 닫힌다) -->
+            <button
+              v-else
+              :ref="(el) => setMenuBtn(entry.key, el)"
+              type="button"
+              class="rounded-md px-3 py-1.5 transition hover:bg-cyan-400/10 hover:text-white"
+              :class="openMenu === entry.key ? 'bg-cyan-400/10 text-white' : isGroupActive(entry) ? 'bg-cyan-400/15 text-white' : ''"
+              @mouseenter="openMenuFor(entry.key)"
+              @mouseleave="scheduleClose"
+              @click="toggleMenu(entry.key)"
+            >
+              {{ t(entry.ko, entry.en) }} ▾
+            </button>
+          </template>
 
           <button
-            ref="moreBtn"
+            :ref="(el) => setMenuBtn('more', el)"
             type="button"
             class="rounded-md px-3 py-1.5 transition hover:bg-cyan-400/10 hover:text-white"
-            :class="moreOpen ? 'bg-cyan-400/10 text-white' : ''"
-            @click="toggleMore"
+            :class="openMenu === 'more' ? 'bg-cyan-400/10 text-white' : ''"
+            @mouseenter="openMenuFor('more')"
+            @mouseleave="scheduleClose"
+            @click="toggleMenu('more')"
           >
             {{ t('기타', 'More') }} ▾
           </button>
@@ -52,7 +69,27 @@
 
         <!-- 가로 메뉴(overflow)에 잘리지 않도록 body로 빼서 화면 기준 위치에 띄운다 -->
         <Teleport to="body">
-          <div v-if="moreOpen && isAdmin" ref="morePanel" class="fixed z-[100] min-w-[220px] rounded-xl border border-cyan-500/10 bg-[#03101d] p-2 shadow-[0_20px_40px_rgba(0,0,0,0.35)]" :style="{ top: morePos.top + 'px', left: morePos.left + 'px' }">
+          <div
+            v-if="openMenu && isAdmin"
+            ref="menuPanel"
+            class="fixed z-[100] min-w-[220px] rounded-xl border border-cyan-500/10 bg-[#03101d] p-2 shadow-[0_20px_40px_rgba(0,0,0,0.35)]"
+            :style="{ top: menuPos.top + 'px', left: menuPos.left + 'px' }"
+            @mouseenter="cancelClose"
+            @mouseleave="scheduleClose"
+          >
+            <template v-if="openMenu !== 'more'">
+              <NuxtLink
+                v-for="item in openGroupItems"
+                :key="item.to"
+                :to="item.to"
+                class="block rounded-lg px-3 py-2 text-[15px] text-slate-200 hover:bg-cyan-400/10 hover:text-white"
+                :class="isActive(item.to) ? 'bg-cyan-400/15 text-white' : ''"
+                @click="closeMenu(); startNavLoading(item.to)"
+              >
+                {{ t(item.ko, item.en) }}
+              </NuxtLink>
+            </template>
+            <template v-else>
               <button
                 type="button"
                 class="block w-full rounded-lg px-3 py-2 text-left text-[15px] text-slate-200 hover:bg-cyan-400/10 hover:text-white"
@@ -66,7 +103,7 @@
                 :key="item.to"
                 :to="item.to"
                 class="block rounded-lg px-3 py-2 text-[15px] text-slate-200 hover:bg-cyan-400/10 hover:text-white"
-                @click="moreOpen = false; startNavLoading(item.to)"
+                @click="closeMenu(); startNavLoading(item.to)"
               >
                 {{ t(item.ko, item.en) }}
               </NuxtLink>
@@ -76,10 +113,11 @@
                 target="_blank"
                 rel="noopener"
                 class="block rounded-lg px-3 py-2 text-[15px] text-slate-200 hover:bg-cyan-400/10 hover:text-white"
-                @click="moreOpen = false"
+                @click="closeMenu"
               >
                 {{ t('KTX 사이트 열기 ↗', 'Open KTX ↗') }}
               </a>
+            </template>
           </div>
         </Teleport>
 
@@ -178,18 +216,40 @@ const ADMIN_MENU_ITEMS: Record<string, NavItem> = {
   // 예전 "쪽지관리"의 이름을 "고객센터"로 바꾼 메뉴(KTX에서 관리자가 고객센터를 누르면 들어가는 /admin/messages). 정산내역과 기타 사이.
   messages: { to: '/admin/messages', ko: '고객센터', en: 'Support' }
 }
-// 이 사이트의 상단 메뉴 순서는 위 ADMIN_MENU_ITEMS 선언 순서로 고정한다.
-const orderedKeys = ref<string[]>(Object.keys(ADMIN_MENU_ITEMS))
 
-const navItems = computed<NavItem[]>(() => {
-  const list: NavItem[] = []
-  list.push({ to: '/admin/dashboard', ko: '대시보드', en: 'Dashboard' })
-  for (const key of orderedKeys.value) {
+// 상단 메뉴 구성(순서 고정): 대시보드 / 유저▾ / 입출금 내역 / 선물거래▾ / 정산내역 / 고객센터 / 기타▾
+// 유저▾ = 회원 목록, 실시간 접속 · 선물거래▾ = 포지션 목록, 거래 내역 (마우스를 올리면 드롭다운)
+type NavEntry =
+  | { type: 'link'; key: string; item: NavItem }
+  | { type: 'group'; key: string; ko: string; en: string; items: NavItem[] }
+
+const navEntries = computed<NavEntry[]>(() => {
+  const visible = (key: string): NavItem | null => {
     const item = ADMIN_MENU_ITEMS[key]!
-    if (canViewAdminMenu(item.permKey || key)) list.push(item)
+    return canViewAdminMenu(item.permKey || key) ? item : null
   }
-  return list
+  const link = (key: string): NavEntry | null => {
+    const item = visible(key)
+    return item ? { type: 'link', key, item } : null
+  }
+  const group = (key: string, ko: string, en: string, children: string[]): NavEntry | null => {
+    const items = children.map(visible).filter((i): i is NavItem => !!i)
+    return items.length ? { type: 'group', key, ko, en, items } : null
+  }
+  const list: Array<NavEntry | null> = [
+    { type: 'link', key: 'dashboard', item: { to: '/admin/dashboard', ko: '대시보드', en: 'Dashboard' } },
+    group('users', '유저', 'Users', ['members', 'online']),
+    link('deposits'),
+    group('futures', '선물거래', 'Futures', ['positions', 'trades']),
+    link('settlement'),
+    link('messages')
+  ]
+  return list.filter((e): e is NavEntry => !!e)
 })
+
+function isGroupActive(entry: NavEntry) {
+  return entry.type === 'group' && entry.items.some((i) => isActive(i.to))
+}
 
 // 상단 메뉴에 바로 노출되지 않는 나머지 관리자 화면들.
 const moreItems = computed<NavItem[]>(() => {
@@ -206,24 +266,49 @@ function isActive(to: string) {
   return route.path === to || route.path.startsWith(to + '/')
 }
 
-const moreOpen = ref(false)
-const moreBtn = ref<HTMLElement | null>(null)
-const morePanel = ref<HTMLElement | null>(null)
-const morePos = ref({ top: 0, left: 0 })
-function toggleMore() {
-  if (moreOpen.value) {
-    moreOpen.value = false
-    return
-  }
-  const r = moreBtn.value?.getBoundingClientRect()
-  if (r) morePos.value = { top: r.bottom + 6, left: Math.max(8, Math.min(r.left, window.innerWidth - 236)) }
-  moreOpen.value = true
+// 드롭다운 메뉴(유저/선물거래/기타): 마우스를 올리면 열리고, 벗어나면 잠깐 뒤에 닫힌다(버튼과 패널 사이를 지나가는 동안은 유지).
+const openMenu = ref<string | null>(null)
+const menuPanel = ref<HTMLElement | null>(null)
+const menuPos = ref({ top: 0, left: 0 })
+const menuBtns: Record<string, HTMLElement | null> = {}
+let closeTimer: any = null
+function setMenuBtn(key: string, el: any) {
+  menuBtns[key] = (el as HTMLElement | null) || null
+}
+const openGroupItems = computed<NavItem[]>(() => {
+  const entry = navEntries.value.find((e) => e.type === 'group' && e.key === openMenu.value)
+  return entry && entry.type === 'group' ? entry.items : []
+})
+function cancelClose() {
+  if (closeTimer) clearTimeout(closeTimer)
+  closeTimer = null
+}
+function scheduleClose() {
+  cancelClose()
+  closeTimer = setTimeout(() => {
+    openMenu.value = null
+  }, 220)
+}
+function closeMenu() {
+  cancelClose()
+  openMenu.value = null
+}
+function openMenuFor(key: string) {
+  cancelClose()
+  const r = menuBtns[key]?.getBoundingClientRect()
+  if (r) menuPos.value = { top: r.bottom + 4, left: Math.max(8, Math.min(r.left, window.innerWidth - 236)) }
+  openMenu.value = key
+}
+function toggleMenu(key: string) {
+  if (openMenu.value === key) closeMenu()
+  else openMenuFor(key)
 }
 function onDocClick(e: MouseEvent) {
-  if (!moreOpen.value) return
+  if (!openMenu.value) return
   const t = e.target as Node
-  if (moreBtn.value?.contains(t) || morePanel.value?.contains(t)) return
-  moreOpen.value = false
+  if (menuPanel.value?.contains(t)) return
+  for (const el of Object.values(menuBtns)) if (el?.contains(t)) return
+  closeMenu()
 }
 onMounted(() => document.addEventListener('click', onDocClick))
 onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
@@ -272,7 +357,7 @@ onBeforeUnmount(() => {
 watch(
   () => route.fullPath,
   () => {
-    moreOpen.value = false
+    closeMenu()
     setTimeout(() => {
       navLoading.value = false
     }, 180)
