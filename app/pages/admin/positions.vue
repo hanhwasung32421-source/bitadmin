@@ -13,6 +13,19 @@
       </div>
     </div>
 
+    <div class="grid gap-2 sm:grid-cols-2">
+      <div class="rounded-md border border-cyan-500/20 bg-cyan-500/10 px-4 py-2.5 text-sm text-cyan-100">
+        <div class="text-xs text-cyan-300/80">{{ t('총 인원', 'Total Members') }}</div>
+        <div class="font-data text-lg font-semibold">{{ t(`${summary.members.toLocaleString('ko-KR')}명`, `${summary.members.toLocaleString('en-US')}`) }}</div>
+        <div class="text-xs text-cyan-300/70">{{ t(`포지션 ${summary.positions.toLocaleString('ko-KR')}건`, `${summary.positions.toLocaleString('en-US')} position(s)`) }}</div>
+      </div>
+      <div class="rounded-md border border-cyan-500/20 bg-cyan-500/10 px-4 py-2.5 text-sm text-cyan-100">
+        <div class="text-xs text-cyan-300/80">{{ t('총 거래금액 합산', 'Total Trade Amount') }}</div>
+        <div class="font-data text-lg font-semibold">{{ fmtKrw(summary.notionalUsdt) }}</div>
+        <div class="font-data text-xs text-cyan-300/70">({{ fmtNum(summary.notionalUsdt) }} USDT · {{ t(`환율 ${Math.round(krwPerUsdt).toLocaleString('ko-KR')}원`, `FX ${Math.round(krwPerUsdt).toLocaleString('en-US')} KRW`) }})</div>
+      </div>
+    </div>
+
     <div>
       <div class="grid gap-2 rounded-xl border border-[#12314a]/40 bg-[#03101d]/40 p-3 shadow-[0_14px_40px_rgba(0,0,0,0.18)] md:grid-cols-[180px_minmax(220px,1fr)_120px_120px_120px]">
         <select
@@ -237,6 +250,29 @@ watch(filteredItems, () => {
   if (page.value > totalPages.value) page.value = totalPages.value
 })
 
+// 상단 요약: 지금 표에 보이는(필터 적용) 포지션 기준 총 인원(포지션을 가진 회원 수)과 총 거래금액(진입가 × 계약수량 합계)
+const krwPerUsdt = ref(0)
+const summary = computed(() => {
+  const rows = filteredItems.value
+  return {
+    members: new Set(rows.map((r) => r.user_id)).size,
+    positions: rows.length,
+    notionalUsdt: rows.reduce((sum, r) => sum + Number(r.entryPrice || 0) * Number(r.qty || 0), 0)
+  }
+})
+function fmtKrw(usdt: number) {
+  const n = Math.round(Number(usdt || 0) * Number(krwPerUsdt.value || 0)).toLocaleString('ko-KR')
+  return t(`${n}원`, `${n} KRW`)
+}
+async function loadRate() {
+  try {
+    const res = await $fetch<{ rate: number }>('/api/settings/krw-rate')
+    krwPerUsdt.value = Number(res.rate || 0)
+  } catch {
+    // 환율을 못 불러오면 직전 값을 그대로 쓴다.
+  }
+}
+
 function fmtNum(v: number) {
   return Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
@@ -274,9 +310,11 @@ async function load(silent = false) {
 }
 
 onMounted(async () => {
-  await load()
+  await Promise.all([load(), loadRate()])
+  let tick = 0
   pollTimer = setInterval(() => {
     load(true).catch(() => {})
+    if (++tick % 12 === 0) loadRate().catch(() => {}) // 환율은 1분에 한 번만 다시 불러온다
   }, 5000)
 })
 
