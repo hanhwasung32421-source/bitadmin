@@ -184,8 +184,6 @@ const orderedKeys = ref<string[]>(Object.keys(ADMIN_MENU_ITEMS))
 const navItems = computed<NavItem[]>(() => {
   const list: NavItem[] = []
   list.push({ to: '/admin/dashboard', ko: '대시보드', en: 'Dashboard' })
-  // 기존 관리자 대시보드(설정/역할/이벤트 관리 등)는 "어드민"으로 이름을 바꿔 총관리자에게만 보인다.
-  if (isSuper.value) list.push({ to: '/admin', ko: '어드민', en: 'Admin' })
   for (const key of orderedKeys.value) {
     const item = ADMIN_MENU_ITEMS[key]!
     if (canViewAdminMenu(item.permKey || key)) list.push(item)
@@ -196,6 +194,8 @@ const navItems = computed<NavItem[]>(() => {
 // 상단 메뉴에 바로 노출되지 않는 나머지 관리자 화면들.
 const moreItems = computed<NavItem[]>(() => {
   const list: NavItem[] = []
+  // 설정/역할/이벤트 관리 등 기존 관리자 대시보드("어드민")는 총관리자에게만 보이며 기타 메뉴 안에 둔다.
+  if (isSuper.value) list.push({ to: '/admin', ko: '어드민', en: 'Admin' })
   if (isSuper.value) list.push({ to: '/admin/create-branch', ko: '계정생성', en: 'Create Account' })
   if (isSuper.value) list.push({ to: '/admin/users', ko: '회원 잔고/역할 관리', en: 'User Balance/Role' })
   return list
