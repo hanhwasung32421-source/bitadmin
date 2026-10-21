@@ -538,7 +538,8 @@
             <div
               class="relative isolate cursor-pointer shadow-[0_10px_32px_rgba(0,0,0,0.24)]"
               :style="{
-                width: Math.min(300, profitCardDraft.cardWidth) + 'px',
+                width: profitCardDraft.cardWidth + 'px',
+                maxWidth: '100%',
                 padding: profitCardDraft.cardPaddingY + 'px ' + profitCardDraft.cardPaddingX + 'px',
                 borderRadius: profitCardDraft.cardRadius + 'px',
                 borderWidth: profitCardDraft.borderWidth + 'px',
