@@ -5,6 +5,7 @@ import { getSupabaseAdminClient } from '../../utils/supabase'
 import { canViewMenu } from '../../utils/menu-permissions'
 import { computeDownlineUsernames, resolveTopCode } from '../../utils/referral'
 import { listRoles } from '../../utils/roles'
+import { listDepositRequests } from '../../utils/deposit-requests'
 
 const FEE_RATE = 0.04
 
@@ -13,6 +14,19 @@ function calcTotalFee(entryPrice: number, qty: number, leverage: number) {
   const net = (entryPrice * qty) / leverage
   const gross = net / (1 - FEE_RATE)
   return gross * FEE_RATE * 2
+}
+
+// 회원별 총 입금액/총 출금액(원화): 처리 완료된 입금·출금 요청만 합산한다.
+async function sumTransfersKrw(ids: number[]) {
+  const deposit = new Map<number, number>()
+  const withdraw = new Map<number, number>()
+  const requests = await listDepositRequests(ids)
+  for (const r of requests) {
+    if (r.status !== 'completed' || !Number.isFinite(r.krwAmount)) continue
+    const target = r.type === 'withdrawal' ? withdraw : deposit
+    target.set(r.userId, (target.get(r.userId) ?? 0) + r.krwAmount)
+  }
+  return { deposit, withdraw }
 }
 
 export default defineEventHandler(async (event) => {
@@ -93,6 +107,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const referralOf = new Map<string, string>((users || []).map((u: any) => [String(u.username || ''), String(u.referral_code || '')]))
+    const transfers = await sumTransfersKrw(ids)
 
     const rows = (users || []).map((u: any) => {
       const id = Number(u.id)
@@ -112,6 +127,8 @@ export default defineEventHandler(async (event) => {
         referralCode: String(u.referral_code || ''),
         topCode: resolveTopCode(username, referralOf),
         balanceUsdt: balanceMap.get(id) ?? 0,
+        totalDepositKrw: transfers.deposit.get(id) ?? 0,
+        totalWithdrawKrw: transfers.withdraw.get(id) ?? 0,
         cumulativeProfit: profitMap.get(id) ?? 0,
         created_at: String(u.created_at || ''),
         online: onlineSet.has(id),
@@ -149,6 +166,7 @@ export default defineEventHandler(async (event) => {
     profitMap.set(uid, (profitMap.get(uid) ?? 0) + pnl - fee)
   }
   const referralOf = new Map<string, string>(users.map((u) => [String(u.username || ''), String(u.referral_code || '')]))
+  const transfers = await sumTransfersKrw(users.map((u) => Number(u.id)))
 
   const rows = users.map((u) => {
     const role = String(u.role || 'user')
@@ -167,6 +185,8 @@ export default defineEventHandler(async (event) => {
       referralCode: String(u.referral_code || ''),
       topCode: resolveTopCode(username, referralOf),
       balanceUsdt: balanceMap.get(Number(u.id)) ?? 0,
+      totalDepositKrw: transfers.deposit.get(Number(u.id)) ?? 0,
+      totalWithdrawKrw: transfers.withdraw.get(Number(u.id)) ?? 0,
       cumulativeProfit: profitMap.get(Number(u.id)) ?? 0,
       created_at: String(u.created_at || ''),
       online: false,

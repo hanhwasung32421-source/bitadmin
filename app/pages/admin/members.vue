@@ -57,6 +57,8 @@
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('referralCode')">{{ t('추천코드', 'Referral Code') }}<span class="sort-icon">{{ sortArrow('referralCode') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('topCode')">{{ t('최상위코드', 'Top Code') }}<span class="sort-icon">{{ sortArrow('topCode') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('balanceUsdt')">{{ t('보유금액', 'Balance') }}<span class="sort-icon">{{ sortArrow('balanceUsdt') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('totalDepositKrw')">{{ t('총 입금액', 'Total Deposits') }}<span class="sort-icon">{{ sortArrow('totalDepositKrw') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('totalWithdrawKrw')">{{ t('총 출금액', 'Total Withdrawals') }}<span class="sort-icon">{{ sortArrow('totalWithdrawKrw') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('cumulativeProfit')">{{ t('누적수익', 'Cumulative PnL') }}<span class="sort-icon">{{ sortArrow('cumulativeProfit') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('created_at')">{{ t('가입일', 'Joined') }}<span class="sort-icon">{{ sortArrow('created_at') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('last_login')">{{ t('최근 접속일', 'Last Login') }}<span class="sort-icon">{{ sortArrow('last_login') || ' ⇅' }}</span></th>
@@ -65,7 +67,7 @@
           </thead>
           <tbody>
             <tr v-if="!loading && filtered.length === 0" class="border-b border-[#0d2438]">
-              <td colspan="11" class="px-[10px] py-8 text-center text-slate-500">{{ t('데이터가 없습니다.', 'No data available.') }}</td>
+              <td colspan="13" class="px-[10px] py-8 text-center text-slate-500">{{ t('데이터가 없습니다.', 'No data available.') }}</td>
             </tr>
             <tr v-for="u in paged" :key="u.id" class="border-b border-[#0d2438] hover:bg-white/[0.02]">
               <td class="px-[10px] py-3">
@@ -104,6 +106,8 @@
                 </button>
                 <span v-else class="px-2 py-1 text-slate-300">{{ fmtBal(u.balanceUsdt) }}</span>
               </td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-right font-data text-slate-200">{{ fmtKrw(u.totalDepositKrw) }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-right font-data text-slate-200">{{ fmtKrw(u.totalWithdrawKrw) }}</td>
               <td class="whitespace-nowrap px-[10px] py-3 text-right font-data">
                 <button
                   type="button"
@@ -340,6 +344,8 @@ type MemberRow = {
   referralCode: string
   topCode: string
   balanceUsdt: number
+  totalDepositKrw: number
+  totalWithdrawKrw: number
   cumulativeProfit: number
   created_at: string
   online: boolean
@@ -476,6 +482,10 @@ function fmtBal(usdt: number) {
   if (krwPerUsdt.value > 0) return Math.round(n * krwPerUsdt.value).toLocaleString('ko-KR') + t('원', ' KRW')
   return fmt2(n) + ' USDT'
 }
+// 총 입금액/총 출금액: 처리 완료된 요청의 원화 합계
+function fmtKrw(krw: number) {
+  return Math.round(Number(krw || 0)).toLocaleString('ko-KR') + t('원', ' KRW')
+}
 async function loadKrwRate() {
   const res = await $fetch<{ rate: number }>('/api/settings/krw-rate').catch(() => null)
   krwPerUsdt.value = Number(res?.rate || 0)
@@ -520,6 +530,8 @@ type SortKey =
   | 'referralCode'
   | 'topCode'
   | 'balanceUsdt'
+  | 'totalDepositKrw'
+  | 'totalWithdrawKrw'
   | 'cumulativeProfit'
   | 'created_at'
   | 'last_login'
