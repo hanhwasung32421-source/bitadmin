@@ -546,7 +546,7 @@
                 borderStyle: 'solid',
                 borderColor: profitCardDraft.borderColor,
                 backgroundColor: profitCardDraft.bgColor,
-                backgroundImage: `repeating-conic-gradient(${profitCardDraft.gridColor} 0% 25%, transparent 0% 50%)`,
+                backgroundImage: profitCardDraft.bgImage ? 'none' : `repeating-conic-gradient(${profitCardDraft.gridColor} 0% 25%, transparent 0% 50%)`,
                 backgroundSize: profitCardDraft.gridSize + 'px ' + profitCardDraft.gridSize + 'px',
                 fontFamily: profitCardDraft.fontFamily,
                 outline: selectedTarget === 'card' ? '2px solid #818cf8' : 'none',
