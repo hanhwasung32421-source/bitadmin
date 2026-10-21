@@ -572,15 +572,7 @@
                   :style="{ outline: selectedOffsetKey === 'logo' ? '2px solid #818cf8' : 'none', outlineOffset: '3px', ...cardOffsetStyle('logo') }"
                   @click.stop="selectTarget('logo', 'logo')"
                 >
-                  <span
-                    class="flex shrink-0 items-center justify-center overflow-hidden rounded-[9px] border border-white bg-black"
-                    :style="{ height: Math.max(8, Math.round(profitCardDraft.logoFontSize * 1.5) + cardSz('logo')) + 'px', width: Math.max(8, Math.round(profitCardDraft.logoFontSize * 1.5) + cardSz('logo')) + 'px' }"
-                  >
-                    <img src="/favicon.png" alt="" class="h-[80%] w-[80%] object-contain" style="image-rendering: pixelated" />
-                  </span>
-                  <span class="font-bold tracking-tight" :style="{ fontSize: cardFs(profitCardDraft.logoFontSize, 'logo'), color: profitCardDraft.logoColor }">
-                    BITDUCK
-                  </span>
+                  <img src="/ktx-logo.png" alt="" class="max-w-none object-contain" :style="{ height: Math.max(8, Math.round(profitCardDraft.logoFontSize * 1.5) + cardSz('logo')) + 'px', width: 'auto' }" />
                 </span>
 
                 <div
@@ -1421,8 +1413,9 @@ async function loginAsUser(userId: number) {
     })
     if (win) {
       if (res?.token) {
-        // 관리자 사이트에는 회원 화면이 없으므로, 회원용 사이트(빗덕)의 임퍼스네이션 주소로 새 창을 연다.
-        const memberSite = String(useRuntimeConfig().public.memberSiteUrl || 'https://bitduck.vercel.app').replace(/\/+$/, '')
+        // 관리자 사이트에는 회원 화면이 없으므로, 회원용 사이트(KTX)의 임퍼스네이션 주소로 새 창을 연다.
+        const pub = useRuntimeConfig().public
+        const memberSite = String(pub.stagingSiteUrl || pub.memberSiteUrl || 'https://bittigers.vercel.app').replace(/\/+$/, '')
         win.location.href = `${memberSite}/impersonate?token=${encodeURIComponent(res.token)}`
       } else {
         win.close()
@@ -1826,13 +1819,14 @@ const dailyKrwRate = ref(0)
 const dailyKrwRateDay = ref('')
 
 // 메뉴구성: 비회원도 보는 최상단 메인 메뉴(관리자 전용 서브메뉴와는 별개)
-type MainNavKey = 'coin' | 'stock' | 'kr' | 'markets' | 'wallet' | 'invest' | 'support'
-const MAIN_NAV_KEYS: MainNavKey[] = ['coin', 'stock', 'kr', 'markets', 'wallet', 'invest', 'support']
+type MainNavKey = 'coin' | 'stock' | 'kr' | 'markets' | 'buy' | 'wallet' | 'invest' | 'support'
+const MAIN_NAV_KEYS: MainNavKey[] = ['buy', 'markets', 'coin', 'stock', 'kr', 'wallet', 'invest', 'support']
 const MAIN_NAV_LABELS: Record<MainNavKey, { ko: string; en: string }> = {
   coin: { ko: '코인선물', en: 'Crypto Futures' },
-  stock: { ko: '해외주식', en: 'Overseas Stocks' },
-  kr: { ko: '국내주식', en: 'Domestic Stocks' },
+  stock: { ko: '파생상품', en: 'Derivative' },
+  kr: { ko: '레버리지', en: 'Leverage' },
   markets: { ko: '마켓', en: 'Markets' },
+  buy: { ko: '자산구매', en: 'Buy Crypto' },
   wallet: { ko: '내 지갑', en: 'My Wallet' },
   invest: { ko: '투자내역', en: 'Investment History' },
   support: { ko: '고객센터', en: 'Support' }
@@ -2025,7 +2019,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onCardArrowKey))
 
 const PROFIT_CARD_TARGET_LABELS: Record<ProfitCardTarget, { ko: string; en: string }> = {
   card: { ko: '카드 전체', en: 'Whole Card' },
-  logo: { ko: '로고(BITDUCK)', en: 'Logo (BITDUCK)' },
+  logo: { ko: '로고(KTX)', en: 'Logo (KTX)' },
   divider: { ko: '구분선', en: 'Divider Line' },
   roe: { ko: '수익률(%) 큰 글씨', en: 'ROE (%) Large Text' },
   won: { ko: '원화 보조텍스트', en: 'KRW Subtext' },
@@ -2249,8 +2243,20 @@ async function loadMiscSettings() {
     if (Array.isArray(data.mainNavOrder) && data.mainNavOrder.length) {
       const known = new Set(MAIN_NAV_KEYS)
       const fromServer = data.mainNavOrder.filter((k: string) => known.has(k as MainNavKey)) as MainNavKey[]
-      const missing = MAIN_NAV_KEYS.filter((k) => !fromServer.includes(k))
-      mainNavDraft.order = [...fromServer, ...missing]
+      const merged = [...fromServer]
+      MAIN_NAV_KEYS.forEach((k, i) => {
+        if (merged.includes(k)) return
+        let at = -1
+        for (let j = i - 1; j >= 0; j--) {
+          const p = merged.indexOf(MAIN_NAV_KEYS[j])
+          if (p >= 0) {
+            at = p
+            break
+          }
+        }
+        merged.splice(at + 1, 0, k)
+      })
+      mainNavDraft.order = merged
     }
     if (Array.isArray(data.mainNavHidden)) {
       const known = new Set(MAIN_NAV_KEYS)
