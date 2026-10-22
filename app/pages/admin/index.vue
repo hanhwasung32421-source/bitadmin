@@ -938,66 +938,11 @@
       </div>
     </div>
 
-    <!-- 킬UP/킬DOWN 이력 -->
-    <div v-show="activeTab === 'killEvents'" class="rounded-2xl border border-white/10 bg-white/5 p-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-lg font-semibold">{{ t('킬UP/킬DOWN 이력', 'Kill UP/DOWN History') }}</h2>
-          <p class="mt-1 text-sm text-slate-400">
-            {{ t('삭제하면 모든 유저의 차트에서도 해당 봉의 고가/저가(꼬리)가 사라집니다(잠시 후 자동 반영).', 'Deleting also removes that candle\'s high/low wick from every user\'s chart (applies automatically shortly after).') }}
-          </p>
-        </div>
-        <button class="rounded-md bg-white/10 px-3 py-2 text-sm hover:bg-white/15" @click="loadKillEvents">
-          {{ t('새로고침', 'Refresh') }}
-        </button>
-      </div>
-
-      <div class="mt-4 rounded-xl border border-white/10 bg-white/5 p-4">
-        <div v-if="killEventsLoading" class="text-sm text-slate-400">{{ t('불러오는 중…', 'Loading…') }}</div>
-        <div v-else-if="killEvents.length === 0" class="text-sm text-slate-400">{{ t('킬 이력이 없습니다.', 'No kill history.') }}</div>
-        <div v-else class="overflow-auto">
-          <table class="w-full text-sm">
-            <thead class="text-left text-slate-400">
-              <tr>
-                <th class="py-2">{{ t('시각', 'Time') }}</th>
-                <th class="py-2">{{ t('심볼', 'Symbol') }}</th>
-                <th class="py-2">{{ t('방향', 'Direction') }}</th>
-                <th class="py-2">{{ t('퍼센트', 'Percent') }}</th>
-                <th class="py-2">{{ t('기준가 → 도달가', 'Base Price → Reached Price') }}</th>
-                <th class="py-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="k in killEvents" :key="k.id" class="border-t border-white/10">
-                <td class="py-2 font-data text-xs">{{ formatKillTime(k.createdAt) }}</td>
-                <td class="py-2 font-data">{{ k.symbol }}</td>
-                <td class="py-2" :class="k.direction === 'up' ? 'text-emerald-300' : 'text-rose-300'">
-                  {{ k.direction === 'up' ? t('킬UP', 'Kill UP') : t('킬DOWN', 'Kill DOWN') }}
-                </td>
-                <td class="py-2 font-data">{{ k.percent }}%</td>
-                <td class="py-2 font-data">{{ k.basePrice }} → {{ k.shockedPrice }}</td>
-                <td class="py-2">
-                  <button
-                    class="rounded-md bg-rose-500/15 px-3 py-1 text-xs text-rose-200 ring-1 ring-rose-500/20 hover:bg-rose-500/25 disabled:cursor-not-allowed disabled:opacity-50"
-                    :disabled="killEventDeleting === k.id"
-                    @click="deleteKillEvent(k.id)"
-                  >
-                    {{ t('삭제', 'Delete') }}
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p v-if="killEventsError" class="mt-3 text-sm text-red-300">{{ killEventsError }}</p>
-      </div>
-    </div>
-
-    <!-- 상승STOP/하락STOP 이력 -->
+    <!-- 리모콘 -->
     <div v-show="activeTab === 'profitEvents'" class="rounded-2xl border border-white/10 bg-white/5 p-6">
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-lg font-semibold">{{ t('상승STOP/하락STOP 이력', 'Rise STOP/Fall STOP History') }}</h2>
+          <h2 class="text-lg font-semibold">{{ t('리모콘', 'Remote') }}</h2>
           <p class="mt-1 text-sm text-slate-400">
             {{ t('삭제하면 모든 유저의 차트에서도 해당 봉의 고가/저가(꼬리)가 사라집니다(잠시 후 자동 반영).', 'Deleting also removes that candle\'s high/low wick from every user\'s chart (applies automatically shortly after).') }}
           </p>
@@ -1009,7 +954,7 @@
 
       <div class="mt-4 rounded-xl border border-white/10 bg-white/5 p-4">
         <div v-if="profitEventsLoading" class="text-sm text-slate-400">{{ t('불러오는 중…', 'Loading…') }}</div>
-        <div v-else-if="profitEvents.length === 0" class="text-sm text-slate-400">{{ t('상승STOP/하락STOP 이력이 없습니다.', 'No Rise STOP/Fall STOP history.') }}</div>
+        <div v-else-if="profitEvents.length === 0" class="text-sm text-slate-400">{{ t('리모콘 이력이 없습니다.', 'No remote history.') }}</div>
         <div v-else class="overflow-auto">
           <table class="w-full text-sm">
             <thead class="text-left text-slate-400">
@@ -1169,7 +1114,7 @@ const { t, locale } = useLocale()
 const { me, refresh } = useMe()
 await refresh()
 
-type TabKey = 'users' | 'liquidation' | 'misc' | 'nav' | 'profitCard' | 'roles' | 'killEvents' | 'profitEvents' | 'dbHealth'
+type TabKey = 'users' | 'liquidation' | 'misc' | 'nav' | 'profitCard' | 'roles' | 'profitEvents' | 'dbHealth'
 const tabs = computed<Array<{ key: TabKey; label: string }>>(() => [
   { key: 'users', label: t('유저 관리', 'User Management') },
   { key: 'liquidation', label: t('강제청산 기준 설정', 'Liquidation Threshold') },
@@ -1177,8 +1122,7 @@ const tabs = computed<Array<{ key: TabKey; label: string }>>(() => [
   { key: 'nav', label: t('메뉴구성', 'Menu Layout') },
   { key: 'profitCard', label: t('카드 디자인', 'Card Design') },
   { key: 'roles', label: t('역할 관리', 'Role Management') },
-  { key: 'killEvents', label: t('킬UP/킬DOWN 이력', 'Kill UP/DOWN History') },
-  { key: 'profitEvents', label: t('상승STOP/하락STOP 이력', 'Rise STOP/Fall STOP History') },
+  { key: 'profitEvents', label: t('리모콘', 'Remote') },
   { key: 'dbHealth', label: t('DB 연결 상태', 'DB Connection Status') }
 ])
 const activeTab = ref<TabKey>('users')
@@ -1747,7 +1691,7 @@ async function loadProfitEvents() {
     const data = await $fetch<{ items: ProfitEventRow[] }>('/api/admin/profit/list')
     profitEvents.value = data.items || []
   } catch (e: any) {
-    profitEventsError.value = e?.data?.statusMessage || t('상승STOP/하락STOP 이력 불러오기 실패', 'Failed to load Rise STOP/Fall STOP history')
+    profitEventsError.value = e?.data?.statusMessage || t('리모콘 이력 불러오기 실패', 'Failed to load remote history')
   } finally {
     profitEventsLoading.value = false
   }
@@ -2361,7 +2305,6 @@ watch(activeTab, (t) => {
 await load()
 await loadLiquidationSetting()
 await loadMiscSettings()
-await loadKillEvents()
 await loadProfitEvents()
 await loadRoles()
 </script>
