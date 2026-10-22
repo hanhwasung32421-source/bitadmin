@@ -23,7 +23,6 @@
           <div class="flex items-start justify-between gap-2">
             <div class="flex items-center gap-1.5 text-[13px] font-medium text-slate-200">
               {{ t(card.ko, card.en) }}
-              <span class="cursor-help text-slate-500" :title="t(card.helpKo, card.helpEn)">ⓘ</span>
             </div>
             <span class="text-slate-400">{{ card.icon }}</span>
           </div>
