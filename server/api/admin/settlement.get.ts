@@ -4,6 +4,7 @@ import { supabaseAppDbEnabled } from '../../utils/supa-appdb'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { canViewMenu, settlementTypesOf, type SettlementType } from '../../utils/menu-permissions'
 import { getSystemSettingsExtra, resolveKrwPerUsdtRate } from '../../utils/system-settings'
+import { ttlCached } from '../../utils/ttl-cache'
 import { computeDownlineUsernames } from '../../utils/referral'
 
 const FEE_RATE = 0.04
@@ -50,6 +51,10 @@ export default defineEventHandler(async (event) => {
   const fromIso = `${from}T00:00:00.000Z`
   const toIso = `${to}T23:59:59.999Z`
 
+  // 같은 관리자/유형/기간의 정산 조회는 10초간 결과를 재사용한다(요약 카드가 5초마다 자동 갱신되며 매번 거래 수만 건을 다시 읽던 것을 줄임).
+  return await ttlCached(`admin:settlement:${admin.id}:${type}:${from}:${to}`, 10_000, () => computeSettlement())
+
+  async function computeSettlement() {
   const extra = await getSystemSettingsExtra()
   // 총관리자는 전역 기본 비율을 쓰고, 부관리자는 총관리자가 개별로 지정한 비율이 있으면 그걸 우선한다.
   const ownPercent = admin.role !== 'super_admin' ? admin.permissions?.settlementPercent : undefined
@@ -171,4 +176,5 @@ export default defineEventHandler(async (event) => {
 
   const total = items.reduce((sum, it) => sum + it.settlementAmount, 0)
   return { items, total, percent, from, to, krwPerUsdt }
+  }
 })

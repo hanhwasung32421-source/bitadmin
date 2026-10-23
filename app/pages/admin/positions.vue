@@ -297,7 +297,7 @@ async function load(silent = false) {
   loadingNow = true
   if (!silent) loading.value = true
   try {
-    const data = await $fetch<{ items: AdminPositionRow[]; serverTime: string }>('/api/admin/positions')
+    const data = await $fetch<{ items: AdminPositionRow[]; serverTime: string }>('/api/admin/positions', { query: silent ? { p: 1 } : undefined })
     items.value = data.items || []
     lastUpdated.value = new Date().toLocaleTimeString('ko-KR', { hour12: false })
     error.value = null
