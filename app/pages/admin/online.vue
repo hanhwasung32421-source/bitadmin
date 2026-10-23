@@ -207,7 +207,7 @@ async function load(silent = false) {
   loadingNow = true
   if (!silent) loading.value = true
   try {
-    const res = await $fetch<{ items: OnlineRow[]; presenceReady?: boolean }>('/api/admin/online')
+    const res = await $fetch<{ items: OnlineRow[]; presenceReady?: boolean }>('/api/admin/online', { query: silent ? { p: 1 } : undefined })
     presenceReady.value = res.presenceReady !== false
     items.value = res.items || []
     lastUpdated.value = new Date().toLocaleTimeString('ko-KR', { hour12: false })
@@ -222,11 +222,12 @@ async function load(silent = false) {
 
 onMounted(async () => {
   await load()
-  timer = setInterval(() => load(true).catch(() => {}), 5000)
+  // 화면이 보일 때만 5초마다 갱신
+  timer = startVisiblePolling(() => load(true), 5000)
 })
 
 onBeforeUnmount(() => {
-  if (timer) clearInterval(timer)
+  if (timer) timer()
   timer = null
 })
 </script>

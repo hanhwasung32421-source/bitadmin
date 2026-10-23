@@ -4,6 +4,7 @@ import { getSupabaseAdminClient } from '../../utils/supabase'
 import { getDb } from '../../utils/db'
 import { canViewMenu } from '../../utils/menu-permissions'
 import { listRoles } from '../../utils/roles'
+import { ttlCached } from '../../utils/ttl-cache'
 
 // 회원 사이트는 20초마다 접속 신호를 보낸다. 한 번 놓쳐도 사라지지 않도록 60초 안에 신호가 있으면 접속 중으로 본다.
 const PRESENCE_WINDOW_MS = 60 * 1000
@@ -21,6 +22,13 @@ export default defineEventHandler(async (event) => {
     return roleLabelMap.get(role) || role
   }
 
+  // 자동 갱신(p=1) 요청은 2초 캐시를 공유한다(같은 화면을 여러 탭/관리자가 열어도 DB는 한 번만 읽음).
+  if (supabaseAppDbEnabled() && String(getQuery(event).p || '') === '1') {
+    return await ttlCached(`admin:online:${roleLabelMap.size}`, 2000, () => computeOnline())
+  }
+  return await computeOnline()
+
+  async function computeOnline() {
   if (supabaseAppDbEnabled()) {
     const supa = getSupabaseAdminClient()
     const nowIso = new Date().toISOString()
@@ -109,5 +117,6 @@ export default defineEventHandler(async (event) => {
   const db = getDb()
   db.prepare('SELECT 1').get()
   return { items: [] }
+  }
 })
 

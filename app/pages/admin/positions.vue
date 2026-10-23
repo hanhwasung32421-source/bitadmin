@@ -312,14 +312,15 @@ async function load(silent = false) {
 onMounted(async () => {
   await Promise.all([load(), loadRate()])
   let tick = 0
-  pollTimer = setInterval(() => {
-    load(true).catch(() => {})
+  // 화면이 보일 때만 5초마다 갱신
+  pollTimer = startVisiblePolling(() => {
     if (++tick % 12 === 0) loadRate().catch(() => {}) // 환율은 1분에 한 번만 다시 불러온다
+    return load(true)
   }, 5000)
 })
 
 onBeforeUnmount(() => {
-  if (pollTimer) clearInterval(pollTimer)
+  if (pollTimer) pollTimer()
   pollTimer = null
 })
 </script>

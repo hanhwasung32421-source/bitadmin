@@ -101,7 +101,7 @@ export function useMessages() {
     if (pollTimer) clearInterval(pollTimer)
     pollTimer = setInterval(() => {
       refreshUnread()
-    }, 5000)
+    }, 8000)
   }
 
   function stopUnreadPolling() {
