@@ -682,7 +682,18 @@ function dateOnly(v: string) {
 
 const filteredThreads = computed(() => {
   const q = threadKeyword.value.trim().toLowerCase()
-  return threads.value.filter((t) => !q || [t.username, t.lastMessage, String(t.userId)].some((v) => String(v).toLowerCase().includes(q)))
+  const list = threads.value.filter((t) => !q || [t.username, t.lastMessage, String(t.userId)].some((v) => String(v).toLowerCase().includes(q)))
+  // 안 읽은 대화를 항상 맨 위에, 그 안에서는(읽은 대화도 마찬가지로) 최근 대화 순서대로 보여준다.
+  const time = (v: string) => {
+    const n = new Date(v).getTime()
+    return Number.isFinite(n) ? n : 0
+  }
+  return [...list].sort((a, b) => {
+    const ua = Number(a.unreadCount || 0) > 0 ? 1 : 0
+    const ub = Number(b.unreadCount || 0) > 0 ? 1 : 0
+    if (ua !== ub) return ub - ua
+    return time(b.lastAt) - time(a.lastAt)
+  })
 })
 
 const canSend = computed(() => Boolean(body.value.trim()) && (sendToAll.value || selectedRecipientIds.value.length > 0))
