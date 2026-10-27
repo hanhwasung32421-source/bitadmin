@@ -1,3 +1,5 @@
+import { ttlCached } from './ttl-cache'
+
 function toInstId(symbol: string) {
   // 선물(무기한) 기준으로 맞춤: *-USDT-SWAP
   const s = symbol.toUpperCase().replace('-', '').replace('/', '')
@@ -13,7 +15,35 @@ function toInstId(symbol: string) {
   return 'BTC-USDT-SWAP'
 }
 
+// 삼성/SK하이닉스는 차트 호가·체결과 서버(주문/청산/킬/리모콘) 시세가 모두 바이낸스 선물 기준이다(KTX 사이트와 같은 목록).
+const BINANCE_FEED_SYMBOLS = new Set(['SAMSUNGUSDT', 'SKHYNIXUSDT'])
+function usesBinanceFeed(sym: string) {
+  return BINANCE_FEED_SYMBOLS.has(String(sym || '').toUpperCase())
+}
+
+// 바이낸스 선물 최우선 호가의 중간값(회원 화면의 현재가와 같은 기준).
+async function getBinanceMidPrice(symbol: string): Promise<number> {
+  const s = symbol.toUpperCase().replace(/[^A-Z0-9]/g, '')
+  return ttlCached(`binance-mid:${s}`, 500, async () => {
+    const r = await $fetch<any>('https://fapi.binance.com/fapi/v1/ticker/bookTicker', { query: { symbol: s }, timeout: 4000 })
+    const bid = Number(r?.bidPrice)
+    const ask = Number(r?.askPrice)
+    if (bid > 0 && ask > 0) return (bid + ask) / 2
+    const t = await $fetch<any>('https://fapi.binance.com/fapi/v1/ticker/price', { query: { symbol: s }, timeout: 4000 })
+    return Number(t?.price)
+  })
+}
+
+// 바이낸스 기준 종목은 바이낸스, 나머지는 OKX. 바이낸스 조회가 실패할 때만 OKX 시세로 대신한다.
 export async function getOkxLastPrice(symbol: string) {
+  if (usesBinanceFeed(symbol)) {
+    try {
+      const last = await getBinanceMidPrice(symbol)
+      if (Number.isFinite(last) && last > 0) return { instId: symbol.toUpperCase(), last }
+    } catch (e: any) {
+      console.warn('[price] binance mid failed, falling back to OKX:', e?.message || e)
+    }
+  }
   const instId = toInstId(symbol)
   const res = await $fetch<any>('https://www.okx.com/api/v5/market/ticker', {
     query: { instId }
