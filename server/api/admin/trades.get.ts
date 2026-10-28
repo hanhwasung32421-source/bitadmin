@@ -3,7 +3,7 @@ import { getDb } from '../../utils/db'
 import { supabaseAppDbEnabled } from '../../utils/supa-appdb'
 import { getSupabaseAdminClient, supaSelectOne } from '../../utils/supabase'
 import { canViewMenu } from '../../utils/menu-permissions'
-import { fetchDownlineUsernames } from '../../utils/referral'
+import { fetchDownlineUsernames, getVisibleScope } from '../../utils/referral'
 
 const FEE_RATE = 0.04
 
@@ -53,6 +53,9 @@ export default defineEventHandler(async (event) => {
 
   if (supabaseAppDbEnabled()) {
     const supa = getSupabaseAdminClient()
+    // 총관리자가 아니면(전체 목록일 때) 내 하부 회원의 거래만 보인다.
+    const scope = userId > 0 ? null : await getVisibleScope(admin)
+    if (scope && scope.ids.size === 0) return { items: [], hasMore: false }
     const selectBase = 'id, user_id, symbol, side, qty, entry_price, exit_price, leverage, pnl, created_at'
     const runQuery = async (select: string) => {
       let query = supa
@@ -61,6 +64,7 @@ export default defineEventHandler(async (event) => {
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1)
       if (userId > 0) query = query.eq('user_id', userId)
+      if (scope) query = query.in('user_id', Array.from(scope.ids))
       const { data, error } = await query
       return { data, error }
     }

@@ -5,6 +5,7 @@ import { supabaseAppDbEnabled } from '../../../utils/supa-appdb'
 import { getSupabaseAdminClient } from '../../../utils/supabase'
 import { canEditMenu } from '../../../utils/menu-permissions'
 import { logAdminAction } from '../../../utils/supa-log'
+import { assertUserInScope } from '../../../utils/referral'
 
 const BodySchema = z.object({
   positionId: z.coerce.number().int().positive(),
@@ -29,6 +30,9 @@ export default defineEventHandler(async (event) => {
 
   if (supabaseAppDbEnabled()) {
     const supa = getSupabaseAdminClient()
+    // 총관리자가 아니면 내 하부 회원의 포지션만 수정할 수 있다.
+    const { data: posOwner } = await supa.from('bitduck_positions').select('user_id').eq('id', body.positionId).maybeSingle()
+    if (posOwner) await assertUserInScope(admin, Number((posOwner as any).user_id))
     const { error } = await supa
       .from('bitduck_positions')
       .update(patch)

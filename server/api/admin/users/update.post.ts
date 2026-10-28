@@ -6,6 +6,7 @@ import { getSupabaseAdminClient, supaSelectOne } from '../../../utils/supabase'
 import { canEditMenu, canEditMemberRole } from '../../../utils/menu-permissions'
 import { getRoleDefinition, canGrantRole } from '../../../utils/roles'
 import { logAdminAction } from '../../../utils/supa-log'
+import { assertUserInScope } from '../../../utils/referral'
 
 const BodySchema = z.object({
   userId: z.number().int().positive(),
@@ -60,6 +61,8 @@ async function handleUpdate(event: any) {
     throw createError({ statusCode: 400, statusMessage: parsed.error.issues[0]?.message || '입력값이 올바르지 않습니다.' })
   }
   const body = parsed.data
+  // 총관리자가 아니면 내 하부 회원(또는 내 계정)만 수정할 수 있다.
+  await assertUserInScope(admin, body.userId)
   const useSupa = supabaseAppDbEnabled()
 
   // 최고관리자(super_admin) 계정은 사고 방지를 위해 이 화면에서 더 이상 수정할 수 없다 —

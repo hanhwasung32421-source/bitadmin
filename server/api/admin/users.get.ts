@@ -3,19 +3,23 @@ import { getDb } from '../../utils/db'
 import { supabaseAppDbEnabled } from '../../utils/supa-appdb'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { settlementTypeOf } from '../../utils/menu-permissions'
+import { getVisibleScope } from '../../utils/referral'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  const admin = await requireAdmin(event)
 
   if (supabaseAppDbEnabled()) {
     const supa = getSupabaseAdminClient()
     const now = new Date().toISOString()
 
-    const { data: users, error: e1 } = await supa
+    let { data: users, error: e1 } = await supa
       .from('bitduck_users')
       .select('id, username, name, referral_code, bank_name, bank_account, account_holder, role, permissions, created_at')
       .order('id', { ascending: false })
     if (e1) throw e1
+    // 총관리자가 아니면 내 하부 회원만 보인다.
+    const scope = await getVisibleScope(admin)
+    if (scope && users) users = users.filter((u: any) => scope.ids.has(Number(u.id)))
 
     const ids = (users || []).map((u: any) => Number(u.id)).filter(Boolean)
     if (!ids.length) return { users: [] }

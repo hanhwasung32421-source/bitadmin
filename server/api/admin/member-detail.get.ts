@@ -4,6 +4,7 @@ import { getDb } from '../../utils/db'
 import { supabaseAppDbEnabled } from '../../utils/supa-appdb'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { canViewMenu } from '../../utils/menu-permissions'
+import { getVisibleScope } from '../../utils/referral'
 
 const QuerySchema = z.object({
   username: z.string().min(1)
@@ -28,6 +29,11 @@ export default defineEventHandler(async (event) => {
       .maybeSingle()
     if (e1) throw e1
     if (!u) throw createError({ statusCode: 404, statusMessage: '회원을 찾을 수 없습니다.' })
+    // 총관리자가 아니면 내 하부 회원의 정보만 볼 수 있다.
+    const scope = await getVisibleScope(admin)
+    if (scope && !scope.usernames.has(String(u.username))) {
+      throw createError({ statusCode: 403, statusMessage: '내 하부 회원이 아니라서 볼 수 없습니다.' })
+    }
 
     const { data: balRow } = await supa.from('bitduck_balances').select('usdt').eq('user_id', u.id).maybeSingle()
     const { data: positions, error: e2 } = await supa

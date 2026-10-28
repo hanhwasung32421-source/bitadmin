@@ -1,6 +1,7 @@
 import { readBody, createError } from 'h3'
 import { z } from 'zod'
 import { requireUser } from '../../utils/auth'
+import { getVisibleScope } from '../../utils/referral'
 import { canEditMenu } from '../../utils/menu-permissions'
 import { ensureAdminThreadAccess, getOperatorAdminUser, insertMessages, listMessageRecipientsForAdmin, threadKeyForUser } from '../../utils/messages'
 
@@ -30,6 +31,9 @@ export default defineEventHandler(async (event) => {
       targetIds = users.map((u) => Number(u.id))
     }
     targetIds = Array.from(new Set(targetIds)).filter((id) => id !== operator.id)
+    // 총관리자가 아니면 내 하부 회원에게만 보낼 수 있다.
+    const scope = await getVisibleScope(user)
+    if (scope) targetIds = targetIds.filter((id) => scope.ids.has(Number(id)))
     if (!targetIds.length) {
       throw createError({ statusCode: 400, statusMessage: '수신 회원을 선택하세요.' })
     }

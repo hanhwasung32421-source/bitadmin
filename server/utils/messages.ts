@@ -1,6 +1,7 @@
 import { getDb } from './db'
 import { SessionUser } from './auth'
 import { getSupabaseAdminClient } from './supabase'
+import { getVisibleScope, assertUserInScope } from './referral'
 import { supabaseAppDbEnabled } from './supa-appdb'
 import { createError } from 'h3'
 import { canEditMenu } from './menu-permissions'
@@ -240,6 +241,9 @@ export async function inboxRecipientIdsFor(user: SessionUser): Promise<number[]>
 export async function getThreadsForUser(user: SessionUser) {
   const isAdmin = user.role !== 'user'
   const inboxIds = await inboxRecipientIdsFor(user)
+  // 총관리자가 아니면 내 하부 회원과의 대화만 보인다.
+  const scope = isAdmin ? await getVisibleScope(user) : null
+  const scopeIds = scope ? scope.ids : undefined
 
   if (supabaseAppDbEnabled()) {
     try {
@@ -247,7 +251,7 @@ export async function getThreadsForUser(user: SessionUser) {
       let q: any = supa.from('bitduck_messages').select('*').order('created_at', { ascending: false }).limit(3000)
       if (!isAdmin) q = q.eq('thread_key', threadKeyForUser(user.id))
       const { data, error } = await q
-      if (!error) return normalizeThreadSummaries((data || []) as any[], inboxIds)
+      if (!error) return normalizeThreadSummaries((data || []) as any[], inboxIds, scopeIds)
     } catch {
       // fall through
     }
@@ -257,10 +261,10 @@ export async function getThreadsForUser(user: SessionUser) {
   const rows = isAdmin
     ? (db.prepare(`SELECT * FROM messages ORDER BY created_at DESC LIMIT 3000`).all() as any[])
     : (db.prepare(`SELECT * FROM messages WHERE thread_key = ? ORDER BY created_at DESC LIMIT 3000`).all(threadKeyForUser(user.id)) as any[])
-  return normalizeThreadSummaries(rows, inboxIds)
+  return normalizeThreadSummaries(rows, inboxIds, scopeIds)
 }
 
-function normalizeThreadSummaries(rows: any[], inboxIds: number[]) {
+function normalizeThreadSummaries(rows: any[], inboxIds: number[], scopeIds?: Set<number>) {
   const out = new Map<
     string,
     {
@@ -276,6 +280,7 @@ function normalizeThreadSummaries(rows: any[], inboxIds: number[]) {
   for (const m of rows) {
     const threadKey = String(m.thread_key || '')
     const userId = Number(String(threadKey).replace('user:', '')) || 0
+    if (scopeIds && !scopeIds.has(userId)) continue
     const unread = inboxIds.includes(Number(m.recipient_id)) && !m.read_at ? 1 : 0
     const prev = out.get(threadKey)
     if (!prev) {
@@ -318,17 +323,21 @@ export async function markThreadAsRead(threadKey: string, userIds: number | numb
   db.prepare(`UPDATE messages SET read_at = ? WHERE thread_key = ? AND recipient_id IN (${marks}) AND read_at IS NULL`).run(readAt, threadKey, ...ids)
 }
 
-export async function countUnreadMessages(userIds: number | number[]) {
+// threadKeys가 주어지면(총관리자가 아닌 관리자) 그 대화방의 안 읽은 쪽지만 센다.
+export async function countUnreadMessages(userIds: number | number[], threadKeys?: string[]) {
   const ids = toIdList(userIds)
   if (!ids.length) return 0
+  if (threadKeys && threadKeys.length === 0) return 0
   if (supabaseAppDbEnabled()) {
     try {
       const supa = getSupabaseAdminClient()
-      const { count, error } = await supa
+      let countQuery = supa
         .from('bitduck_messages')
         .select('*', { count: 'exact', head: true })
         .in('recipient_id', ids)
         .is('read_at', null)
+      if (threadKeys) countQuery = countQuery.in('thread_key', threadKeys)
+      const { count, error } = await countQuery
       if (!error) return Number(count || 0)
     } catch {
       // fall through
@@ -370,6 +379,8 @@ export async function ensureAdminThreadAccess(user: SessionUser, targetUserId?: 
     if (!targetUserId) {
       throw createError({ statusCode: 400, statusMessage: '대화 대상 회원이 필요합니다.' })
     }
+    // 총관리자가 아니면 내 하부 회원과의 대화만 열 수 있다.
+    await assertUserInScope(user, Number(targetUserId))
     return { threadKey: threadKeyForUser(targetUserId), targetUserId: Number(targetUserId) }
   }
   return { threadKey: threadKeyForUser(user.id), targetUserId: user.id }

@@ -5,6 +5,7 @@ import { getDb } from '../../utils/db'
 import { canViewMenu } from '../../utils/menu-permissions'
 import { listRoles } from '../../utils/roles'
 import { ttlCached } from '../../utils/ttl-cache'
+import { getVisibleScope } from '../../utils/referral'
 
 // 회원 사이트는 20초마다 접속 신호를 보낸다. 한 번 놓쳐도 사라지지 않도록 60초 안에 신호가 있으면 접속 중으로 본다.
 const PRESENCE_WINDOW_MS = 60 * 1000
@@ -57,6 +58,9 @@ export default defineEventHandler(async (event) => {
       if (e1) throw e1
       ids = Array.from(new Set((sessions || []).map((s: any) => Number(s.user_id)).filter(Boolean)))
     }
+    // 총관리자가 아니면 내 하부 회원만 보인다.
+    const scope = await getVisibleScope(admin)
+    if (scope) ids = ids.filter((id) => scope.ids.has(Number(id)))
     if (!ids.length) return { items: [], presenceReady }
 
     const { data: users, error: e2 } = await supa.from('bitduck_users').select('id, username, name, role, created_at').in('id', ids)

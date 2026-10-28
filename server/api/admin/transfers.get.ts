@@ -3,6 +3,7 @@ import { supabaseAppDbEnabled } from '../../utils/supa-appdb'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { getDb } from '../../utils/db'
 import { canViewMenu } from '../../utils/menu-permissions'
+import { getVisibleScope } from '../../utils/referral'
 
 function isAdminRole(role: string) {
   return role !== 'user' && role !== 'super_admin' && role !== ''
@@ -21,11 +22,16 @@ export default defineEventHandler(async (event) => {
     const limit = Math.min(200, Math.max(1, Number(q.limit ?? 50)))
     const offset = Math.max(0, Number(q.offset ?? 0))
 
-    const { data: rows, error: e1 } = await supa
+    // 총관리자가 아니면 내 하부 회원에게 들어간 내역만 보인다.
+    const scope = await getVisibleScope(admin)
+    if (scope && scope.ids.size === 0) return { items: [], hasMore: false, summary: { totalInUsdt: 0, totalOutUsdt: 0 } }
+    let creditQuery = supa
       .from('bitduck_log_credits')
       .select('admin_local_user_id, target_local_user_id, amount, created_at')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
+    if (scope) creditQuery = creditQuery.in('target_local_user_id', Array.from(scope.ids))
+    const { data: rows, error: e1 } = await creditQuery
     if (e1) throw e1
 
     const ids = Array.from(

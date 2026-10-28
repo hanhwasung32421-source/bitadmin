@@ -27,8 +27,8 @@ export default defineEventHandler(async (event) => {
   const memberIds = members.map((u: any) => Number(u.id)).filter(Boolean)
   const memberById = new Map<number, any>(members.map((u: any) => [Number(u.id), u]))
   const userById = new Map<number, any>((allUsers || []).map((u: any) => [Number(u.id), u]))
-  // 거래내역 메뉴를 볼 수 있는 관리자는 거래 요약에 전체 거래를 반영한다(거래 내역 페이지가 보여주는 범위와 동일).
-  const allTradesVisible = admin.role === 'super_admin' || canViewMenu(admin, 'trades')
+  // 총관리자(admin)만 전체 거래를 반영한다. 그 외 관리자는 내 하부 회원의 거래만 요약에 들어간다(거래 내역 페이지와 동일한 범위).
+  const allTradesVisible = admin.role === 'super_admin'
   const referralOf = new Map<string, string>((allUsers || []).map((u: any) => [String(u.username || ''), String(u.referral_code || '')]))
 
   const now = Date.now()

@@ -4,6 +4,7 @@ import { getDb } from '../../../utils/db'
 import { logAdminCredit } from '../../../utils/supa-log'
 import { supabaseAppDbEnabled, syncBalanceToSupabase } from '../../../utils/supa-appdb'
 import { getSupabaseAdminClient, supaSelectOne } from '../../../utils/supabase'
+import { assertUserInScope } from '../../../utils/referral'
 
 const BodySchema = z.object({
   userId: z.number().int().positive(),
@@ -17,6 +18,8 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = BodySchema.parse(await readBody(event))
+  // 총관리자가 아니면 내 하부 회원에게만 입금할 수 있다.
+  await assertUserInScope(admin, body.userId)
   const useSupa = supabaseAppDbEnabled()
 
   if (useSupa) {

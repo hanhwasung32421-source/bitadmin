@@ -6,6 +6,7 @@ import { getOkxLastPrice } from '../../utils/okx'
 import { getLiquidationRoe } from '../../utils/system-settings'
 import { ttlCached } from '../../utils/ttl-cache'
 import { canViewMenu } from '../../utils/menu-permissions'
+import { getVisibleScope } from '../../utils/referral'
 
 function calcLiqPrice(side: string, entry: number, lev: number, liquidationRoe: number) {
   if (!Number.isFinite(entry) || !Number.isFinite(lev) || lev <= 0) return 0
@@ -79,6 +80,13 @@ export default defineEventHandler(async (event) => {
       .prepare('SELECT id, user_id, symbol, side, qty, entry_price, leverage, margin, created_at FROM positions ORDER BY created_at DESC')
       .all()
     users = db.prepare('SELECT id, username, name, role FROM users').all().map((u: any) => ({ ...u, online: false }))
+  }
+
+  // 총관리자가 아니면 내 하부 회원의 포지션만 보인다.
+  const scope = await getVisibleScope(admin)
+  if (scope) {
+    positions = positions.filter((p: any) => scope.ids.has(Number(p.user_id)))
+    users = users.filter((u: any) => scope.ids.has(Number(u.id)))
   }
 
   const userMap = new Map(users.map((u: any) => [Number(u.id), u]))
