@@ -106,10 +106,12 @@
                 </button>
                 <span v-else class="px-2 py-1 text-slate-300">{{ fmtBal(u.balanceUsdt) }}</span>
               </td>
-              <td class="whitespace-nowrap px-[10px] py-3 text-right font-data text-slate-200">{{ fmtKrw(u.totalDepositKrw) }}</td>
-              <td class="whitespace-nowrap px-[10px] py-3 text-right font-data text-slate-200">{{ fmtKrw(u.totalWithdrawKrw) }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-right font-data text-slate-200">{{ isStaff(u) ? '-' : fmtKrw(u.totalDepositKrw) }}</td>
+              <td class="whitespace-nowrap px-[10px] py-3 text-right font-data text-slate-200">{{ isStaff(u) ? '-' : fmtKrw(u.totalWithdrawKrw) }}</td>
               <td class="whitespace-nowrap px-[10px] py-3 text-right font-data">
+                <span v-if="isStaff(u)" class="px-2 py-1 text-slate-200">-</span>
                 <button
+                  v-else
                   type="button"
                   class="rounded px-2 py-1 ring-1"
                   :class="
@@ -119,7 +121,7 @@
                   "
                   @click="openTradeModal(u)"
                 >
-                  {{ signedProfitText(u.cumulativeProfit) }}
+                  {{ signedProfitKrw(u.cumulativeProfit) }}
                 </button>
               </td>
               <td class="whitespace-nowrap px-[10px] py-3 font-data text-slate-300">{{ dateOnly(u.created_at) }}</td>
@@ -493,6 +495,17 @@ async function loadKrwRate() {
 
 function fmt2(v: number) {
   return Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+// 관리자(회원이 아닌 계정)는 입출금/수익 개념이 없어서 총입금액·총출금액·누적수익을 '-'로 표시한다(보유금액은 그대로 표시).
+function isStaff(u: { roleId: string }) {
+  return u.roleId !== 'user'
+}
+// 누적수익은 원화로, 끝에 '원'을 붙여 표시한다(환율을 못 불러오면 USDT로 대체 표시).
+function signedProfitKrw(usdt: number) {
+  const n = Number(usdt || 0)
+  const sign = n >= 0 ? '+' : '-'
+  if (krwPerUsdt.value > 0) return `${sign}${Math.round(Math.abs(n) * krwPerUsdt.value).toLocaleString('ko-KR')}${t('원', ' KRW')}`
+  return `${sign}${fmt2(Math.abs(n))} USDT`
 }
 function signedProfitText(v: number) {
   const n = Number(v || 0)
