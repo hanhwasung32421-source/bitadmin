@@ -2,7 +2,7 @@ import { requireAdmin } from '../../utils/auth'
 import { getDb } from '../../utils/db'
 import { supabaseAppDbEnabled } from '../../utils/supa-appdb'
 import { getSupabaseAdminClient } from '../../utils/supabase'
-import { canEditMenu, canViewMenu } from '../../utils/menu-permissions'
+import { canEditMenu, canSeeTopCode, canViewMenu } from '../../utils/menu-permissions'
 import { listDepositRequests } from '../../utils/deposit-requests'
 import { computeDownlineUsernames, resolveTopCode } from '../../utils/referral'
 
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
         username,
         name: String(u?.name || ''),
         referralCode: String(u?.referral_code || ''),
-        topCode: resolveTopCode(username, referralOf),
+        topCode: canSeeTopCode(admin) ? resolveTopCode(username, referralOf) : '',
         balanceUsdt: balanceMap.get(r.userId) ?? 0,
         krwAmount: r.krwAmount,
         usdtAmount: r.usdtAmount,
@@ -91,7 +91,7 @@ export default defineEventHandler(async (event) => {
       username,
       name: String(u?.name || ''),
       referralCode: String(u?.referral_code || ''),
-      topCode: resolveTopCode(username, referralOf),
+      topCode: canSeeTopCode(admin) ? resolveTopCode(username, referralOf) : '',
       balanceUsdt: balanceMap.get(r.userId) ?? 0,
       krwAmount: r.krwAmount,
       usdtAmount: r.usdtAmount,

@@ -33,13 +33,14 @@ export function settlementTypesOf(user: { role?: string; permissions?: any } | n
 }
 
 // roleEdit: "회원 목록"에서 회원 역할을 바꿀 수 있는 권한(회원 목록 메뉴에만 있음). 값이 없으면 허용(예전 동작 유지).
-export type MenuPermission = { view: boolean; edit: boolean; roleEdit?: boolean }
+// showTopCode: 표에서 "최상위코드"(총판)를 볼 수 있는 권한(회원 목록 메뉴에만 있음). 기본은 안 보임, 최고관리자(admin)는 항상 보임.
+export type MenuPermission = { view: boolean; edit: boolean; roleEdit?: boolean; showTopCode?: boolean }
 export type MenuPermissions = Record<AdminMenuKey, MenuPermission>
 
 export function defaultMenuPermissions(): MenuPermissions {
   const out = {} as MenuPermissions
   for (const key of ADMIN_MENU_KEYS) {
-    out[key] = key === 'members' ? { view: true, edit: false, roleEdit: true } : { view: true, edit: false }
+    out[key] = key === 'members' ? { view: true, edit: false, roleEdit: true, showTopCode: false } : { view: true, edit: false }
   }
   return out
 }
@@ -53,7 +54,7 @@ export function normalizeMenuPermissions(input: any): MenuPermissions {
       out[key] = {
         view: v.view !== false,
         edit: Boolean(v.edit),
-        ...(key === 'members' ? { roleEdit: v.roleEdit !== false } : {})
+        ...(key === 'members' ? { roleEdit: v.roleEdit !== false, showTopCode: v.showTopCode === true } : {})
       }
     }
   }
@@ -65,7 +66,7 @@ export function menuPermissionsOf(user: { role?: string; permissions?: any } | n
   if (user.role === 'super_admin') {
     const all = defaultMenuPermissions()
     for (const key of ADMIN_MENU_KEYS) {
-      all[key] = key === 'members' ? { view: true, edit: true, roleEdit: true } : { view: true, edit: true }
+      all[key] = key === 'members' ? { view: true, edit: true, roleEdit: true, showTopCode: true } : { view: true, edit: true }
     }
     return all
   }
@@ -75,6 +76,12 @@ export function menuPermissionsOf(user: { role?: string; permissions?: any } | n
 export function canViewMenu(user: { role?: string; permissions?: any } | null | undefined, key: AdminMenuKey): boolean {
   if (user?.role === 'super_admin') return true
   return menuPermissionsOf(user)[key]?.view !== false
+}
+
+// 표에서 최상위코드를 볼 수 있는지(최상위코드 보이기). 총관리자는 항상 보인다.
+export function canSeeTopCode(user: { role?: string; permissions?: any } | null | undefined): boolean {
+  if (user?.role === 'super_admin') return true
+  return menuPermissionsOf(user).members?.showTopCode === true
 }
 
 // 회원 목록에서 회원 역할을 바꿀 수 있는지(회원역할수정허용). 총관리자는 항상 가능.

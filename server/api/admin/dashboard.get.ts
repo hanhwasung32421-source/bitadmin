@@ -1,5 +1,5 @@
 import { requireAdmin } from '../../utils/auth'
-import { canViewMenu } from '../../utils/menu-permissions'
+import { canSeeTopCode, canViewMenu } from '../../utils/menu-permissions'
 import { supabaseAppDbEnabled } from '../../utils/supa-appdb'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { listDepositRequests } from '../../utils/deposit-requests'
@@ -110,7 +110,7 @@ export default defineEventHandler(async (event) => {
       id: r.id,
       username,
       name: String(u?.name || ''),
-      topCode: resolveTopCode(username, referralOf),
+      topCode: canSeeTopCode(admin) ? resolveTopCode(username, referralOf) : '',
       krwAmount: r.krwAmount,
       status: r.status,
       createdAt: r.createdAt

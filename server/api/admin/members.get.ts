@@ -2,7 +2,7 @@ import { requireAdmin } from '../../utils/auth'
 import { getDb } from '../../utils/db'
 import { supabaseAppDbEnabled } from '../../utils/supa-appdb'
 import { getSupabaseAdminClient } from '../../utils/supabase'
-import { canViewMenu } from '../../utils/menu-permissions'
+import { canSeeTopCode, canViewMenu } from '../../utils/menu-permissions'
 import { computeDownlineUsernames, resolveTopCode } from '../../utils/referral'
 import { listRoles } from '../../utils/roles'
 import { ttlCached } from '../../utils/ttl-cache'
@@ -138,7 +138,7 @@ export default defineEventHandler(async (event) => {
         bankAccount: String(u.bank_account || ''),
         accountHolder: String(u.account_holder || ''),
         referralCode: String(u.referral_code || ''),
-        topCode: resolveTopCode(username, referralOf),
+        topCode: canSeeTopCode(me) ? resolveTopCode(username, referralOf) : '',
         balanceUsdt: balanceMap.get(id) ?? 0,
         totalDepositKrw: transfers.deposit.get(id) ?? 0,
         totalWithdrawKrw: transfers.withdraw.get(id) ?? 0,
@@ -196,7 +196,7 @@ export default defineEventHandler(async (event) => {
       bankAccount: String(u.bank_account || ''),
       accountHolder: String(u.account_holder || ''),
       referralCode: String(u.referral_code || ''),
-      topCode: resolveTopCode(username, referralOf),
+      topCode: canSeeTopCode(me) ? resolveTopCode(username, referralOf) : '',
       balanceUsdt: balanceMap.get(Number(u.id)) ?? 0,
       totalDepositKrw: transfers.deposit.get(Number(u.id)) ?? 0,
       totalWithdrawKrw: transfers.withdraw.get(Number(u.id)) ?? 0,

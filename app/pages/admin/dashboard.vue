@@ -110,7 +110,7 @@
                 <th class="px-[10px] py-2 font-medium">{{ t('날짜', 'Date') }}</th>
                 <th class="px-[10px] py-2 font-medium">{{ t('금액', 'Amount') }}</th>
                 <th class="px-[10px] py-2 font-medium">{{ t(blk.nameKo, blk.nameEn) }}</th>
-                <th class="px-[10px] py-2 font-medium">{{ t('총판명', 'Top Code') }}</th>
+                <th v-if="showTopCode" class="px-[10px] py-2 font-medium">{{ t('총판명', 'Top Code') }}</th>
                 <th class="px-[10px] py-2 font-medium">{{ t(blk.statusKo, blk.statusEn) }}</th>
               </tr>
             </thead>
@@ -122,7 +122,7 @@
                 <td class="whitespace-nowrap px-[10px] py-2.5 text-slate-300">{{ fmtShortDate(r.createdAt) }}</td>
                 <td class="whitespace-nowrap px-[10px] py-2.5 font-semibold text-slate-100">{{ fmtMan(r.krwAmount) }}</td>
                 <td class="px-[10px] py-2.5 text-slate-100">{{ r.name || r.username }}</td>
-                <td class="px-[10px] py-2.5 text-slate-100">{{ r.topCode || '—' }}</td>
+                <td v-if="showTopCode" class="px-[10px] py-2.5 text-slate-100">{{ r.topCode || '—' }}</td>
                 <td class="px-[10px] py-2.5">
                   <span class="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold" :class="statusClass(r.status)">
                     {{ statusLabel(r.status) }}
@@ -140,6 +140,9 @@
 <script setup lang="ts">
 definePageMeta({ middleware: ['admin'] })
 
+// 최상위코드(총판명)는 기본으로 숨김, 총관리자(admin)는 항상 보이고 부관리자는 역할 권한의 '최상위코드 보이기'가 켜져 있을 때만 보인다.
+const { me } = useMe()
+const showTopCode = computed(() => me.value?.role === 'super_admin' || (me.value as any)?.permissions?.menus?.members?.showTopCode === true)
 type Row = { id: number; username: string; name: string; topCode: string; krwAmount: number; status: 'pending' | 'completed' | 'rejected'; createdAt: string }
 type DashboardData = {
   rate: number

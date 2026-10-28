@@ -36,6 +36,7 @@
           :key="`dep-name-${locale}`"
         />
         <input
+          v-if="showTopCode"
           v-model.trim="filterTopCode"
           :placeholder="t('총판 이름 검색', 'Search affiliate name')"
           class="rounded-md border border-[#173753] bg-[#041425] px-3 py-2 text-sm text-slate-200 outline-none placeholder:text-slate-600"
@@ -100,7 +101,7 @@
               </th>
               <th class="sortable-th max-w-[10ch] cursor-pointer select-none truncate px-[10px] py-3 text-left" @click="toggleSort('username')">{{ t('회원 아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
               <th class="sortable-th max-w-[10ch] cursor-pointer select-none truncate px-[10px] py-3 text-left" @click="toggleSort('name')">{{ t('회원 이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
-              <th class="sortable-th max-w-[10ch] cursor-pointer select-none truncate px-[10px] py-3 text-left" @click="toggleSort('topCode')">{{ t('총판 이름', 'Affiliate') }}<span class="sort-icon">{{ sortArrow('topCode') || ' ⇅' }}</span></th>
+              <th v-if="showTopCode" class="sortable-th max-w-[10ch] cursor-pointer select-none truncate px-[10px] py-3 text-left" @click="toggleSort('topCode')">{{ t('총판 이름', 'Affiliate') }}<span class="sort-icon">{{ sortArrow('topCode') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('balanceUsdt')">{{ t('잔고', 'Balance') }}<span class="sort-icon">{{ sortArrow('balanceUsdt') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('krwAmount')">{{ t('입금/출금 금액', 'Amount') }}<span class="sort-icon">{{ sortArrow('krwAmount') || ' ⇅' }}</span></th>
               <th class="sortable-th max-w-[5em] cursor-pointer select-none truncate px-[10px] py-3 text-right" @click="toggleSort('rateUsed')">{{ t('처리 환율', 'FX Rate') }}<span class="sort-icon">{{ sortArrow('rateUsed') || ' ⇅' }}</span></th>
@@ -124,7 +125,7 @@
                 </button>
               </td>
               <td class="max-w-[10ch] truncate px-[10px] py-3 text-slate-200" :title="it.name">{{ it.name }}</td>
-              <td class="max-w-[10ch] truncate px-[10px] py-3 font-data text-slate-300" :title="it.topCode">{{ it.topCode || '—' }}</td>
+              <td v-if="showTopCode" class="max-w-[10ch] truncate px-[10px] py-3 font-data text-slate-300" :title="it.topCode">{{ it.topCode || '—' }}</td>
               <td class="whitespace-nowrap px-[10px] py-3 text-right font-data text-slate-200">{{ fmtKrw(it.balanceUsdt) }}</td>
               <td class="whitespace-nowrap px-[10px] py-3 text-right font-data text-slate-100">{{ fmtWon(it.krwAmount) }}</td>
               <td class="max-w-[5em] truncate px-[10px] py-3 text-right font-data text-slate-300">{{ fmt0(displayRate(it)) }}</td>
@@ -381,6 +382,8 @@ const filterType = ref('')
 const filterUsername = ref('')
 const filterName = ref('')
 const filterTopCode = ref('')
+// 최상위코드(총판)는 기본으로 숨김, 총관리자(admin)는 항상 보이고 부관리자는 역할 권한의 "최상위코드 보이기"가 켜져 있을 때만 보인다.
+const showTopCode = computed(() => me.value?.role === 'super_admin' || (me.value as any)?.permissions?.menus?.members?.showTopCode === true)
 const filterBalanceMin = ref('')
 const filterBalanceMax = ref('')
 const filterAmountMin = ref('')

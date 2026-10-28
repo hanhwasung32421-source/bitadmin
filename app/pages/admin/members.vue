@@ -55,7 +55,7 @@
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('username')">{{ t('아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('name')">{{ t('회원이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('referralCode')">{{ t('추천코드', 'Referral Code') }}<span class="sort-icon">{{ sortArrow('referralCode') || ' ⇅' }}</span></th>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('topCode')">{{ t('최상위코드', 'Top Code') }}<span class="sort-icon">{{ sortArrow('topCode') || ' ⇅' }}</span></th>
+              <th v-if="showTopCode" class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('topCode')">{{ t('최상위코드', 'Top Code') }}<span class="sort-icon">{{ sortArrow('topCode') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('balanceUsdt')">{{ t('보유금액', 'Balance') }}<span class="sort-icon">{{ sortArrow('balanceUsdt') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('totalDepositKrw')">{{ t('총 입금액', 'Total Deposits') }}<span class="sort-icon">{{ sortArrow('totalDepositKrw') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-right" @click="toggleSort('totalWithdrawKrw')">{{ t('총 출금액', 'Total Withdrawals') }}<span class="sort-icon">{{ sortArrow('totalWithdrawKrw') || ' ⇅' }}</span></th>
@@ -94,7 +94,7 @@
               </td>
               <td class="whitespace-nowrap px-[10px] py-3 text-slate-200">{{ u.name }}</td>
               <td class="whitespace-nowrap px-[10px] py-3 font-data text-slate-300">{{ u.referralCode || '—' }}</td>
-              <td class="whitespace-nowrap px-[10px] py-3 font-data text-slate-300">{{ u.topCode || '—' }}</td>
+              <td v-if="showTopCode" class="whitespace-nowrap px-[10px] py-3 font-data text-slate-300">{{ u.topCode || '—' }}</td>
               <td class="whitespace-nowrap px-[10px] py-3 text-right font-data">
                 <button
                   v-if="canEditBalance"
@@ -398,6 +398,8 @@ const balanceSaving = ref(false)
 const balanceError = ref<string | null>(null)
 let pollTimer: any = null
 let loadingNow = false
+// 최상위코드는 기본으로 숨김, 총관리자(admin)는 항상 보이고 부관리자는 역할 권한의 "최상위코드 보이기"가 켜져 있을 때만 보인다.
+const showTopCode = computed(() => me.value?.role === 'super_admin' || (me.value as any)?.permissions?.menus?.members?.showTopCode === true)
 // 총관리자는 항상 가능, 부관리자는 총관리자가 부여한 "회원 목록" 수정 권한이 있을 때만
 const canEditBalance = computed(() => {
   if (me.value?.role === 'super_admin') return true

@@ -7,7 +7,8 @@ import { logAdminAction } from '../../../utils/supa-log'
 const MenuSchema = z.object({
   view: z.boolean().optional(),
   edit: z.boolean().optional(),
-  roleEdit: z.boolean().optional()
+  roleEdit: z.boolean().optional(),
+  showTopCode: z.boolean().optional()
 })
 
 const BodySchema = z.object({
