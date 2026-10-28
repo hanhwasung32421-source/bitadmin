@@ -1065,7 +1065,7 @@
     >
       <div class="w-full max-w-md rounded-2xl border border-white/10 bg-[#10171d] p-6 shadow-2xl">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-slate-100">{{ t(`${roleModalTarget?.label} 메뉴 권한`, `${roleModalTarget?.label} Menu Permissions`) }}</h3>
+          <h3 class="text-lg font-semibold text-slate-100">{{ t('역할 권한 설정', 'Role Permission Settings') }}</h3>
           <button type="button" class="rounded-full p-1.5 text-slate-400 hover:bg-white/10 hover:text-white" @click="closeRoleModal">✕</button>
         </div>
         <div class="mt-3">
@@ -1087,6 +1087,10 @@
             <label v-if="menuMeta[key].editable" class="mt-1 flex items-center gap-1.5 text-xs text-slate-400">
               <input v-model="roleMenuDraft[key].edit" type="checkbox" class="h-4 w-4 accent-indigo-500" :disabled="!roleMenuDraft[key].view" />
               {{ t(`${menuMeta[key].editLabelKo} 허용`, `Allow ${menuMeta[key].editLabelEn}`) }}
+            </label>
+            <label v-if="key === 'members'" class="mt-1 flex items-center gap-1.5 text-xs text-slate-400">
+              <input v-model="roleMenuDraft[key].roleEdit" type="checkbox" class="h-4 w-4 accent-indigo-500" :disabled="!roleMenuDraft[key].view" />
+              {{ t('회원역할수정허용', 'Allow Member Role Edit') }}
             </label>
           </div>
         </div>
@@ -1465,7 +1469,7 @@ const menuMeta: Record<MenuKey, { labelKo: string; labelEn: string; editable: bo
   settlement: { labelKo: '정산내역', labelEn: 'Settlement History', editable: false },
   deposits: { labelKo: '입출금 내역', labelEn: 'Deposit/Withdrawal History', editable: true, editLabelKo: '입금/출금 승인/거절', editLabelEn: 'Approve/Reject Deposits/Withdrawals' }
 }
-type RoleRow = { id: string; label: string; menus: Record<MenuKey, { view: boolean; edit: boolean }>; tier: number; createdAt: string }
+type RoleRow = { id: string; label: string; menus: Record<MenuKey, { view: boolean; edit: boolean; roleEdit?: boolean }>; tier: number; createdAt: string }
 const roles = ref<RoleRow[]>([])
 const tierDraft = reactive<Record<string, string>>({})
 const savingTierId = ref<string | null>(null)
@@ -1480,8 +1484,8 @@ const deletingRoleId = ref<string | null>(null)
 const roleModalOpen = ref(false)
 const roleModalTarget = ref<RoleRow | null>(null)
 const roleLabelDraft = ref('')
-const roleMenuDraft = reactive<Record<MenuKey, { view: boolean; edit: boolean }>>({
-  members: { view: true, edit: false },
+const roleMenuDraft = reactive<Record<MenuKey, { view: boolean; edit: boolean; roleEdit?: boolean }>>({
+  members: { view: true, edit: false, roleEdit: true },
   online: { view: true, edit: false },
   trades: { view: true, edit: false },
   transfers: { view: true, edit: false },
@@ -1593,6 +1597,7 @@ function openRoleModal(r: RoleRow) {
   for (const key of menuKeys) {
     roleMenuDraft[key].view = r.menus?.[key]?.view !== false
     roleMenuDraft[key].edit = Boolean(r.menus?.[key]?.edit)
+    if (key === 'members') roleMenuDraft[key].roleEdit = r.menus?.[key]?.roleEdit !== false
   }
   roleModalError.value = null
   roleModalOpen.value = true
@@ -1608,8 +1613,11 @@ async function saveRoleModal() {
   roleModalSaving.value = true
   roleModalError.value = null
   try {
-    const menus: Record<string, { view: boolean; edit: boolean }> = {}
-    for (const key of menuKeys) menus[key] = { view: roleMenuDraft[key].view, edit: roleMenuDraft[key].edit }
+    const menus: Record<string, { view: boolean; edit: boolean; roleEdit?: boolean }> = {}
+    for (const key of menuKeys) {
+      menus[key] = { view: roleMenuDraft[key].view, edit: roleMenuDraft[key].edit }
+      if (key === 'members') menus[key].roleEdit = roleMenuDraft[key].roleEdit !== false
+    }
     await $fetch('/api/admin/roles/update', {
       method: 'POST',
       body: { id: roleModalTarget.value.id, label: roleLabelDraft.value, menus }

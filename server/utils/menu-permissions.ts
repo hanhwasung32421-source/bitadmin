@@ -32,13 +32,14 @@ export function settlementTypesOf(user: { role?: string; permissions?: any } | n
   return [settlementTypeOf(user)]
 }
 
-export type MenuPermission = { view: boolean; edit: boolean }
+// roleEdit: "회원 목록"에서 회원 역할을 바꿀 수 있는 권한(회원 목록 메뉴에만 있음). 값이 없으면 허용(예전 동작 유지).
+export type MenuPermission = { view: boolean; edit: boolean; roleEdit?: boolean }
 export type MenuPermissions = Record<AdminMenuKey, MenuPermission>
 
 export function defaultMenuPermissions(): MenuPermissions {
   const out = {} as MenuPermissions
   for (const key of ADMIN_MENU_KEYS) {
-    out[key] = { view: true, edit: false }
+    out[key] = key === 'members' ? { view: true, edit: false, roleEdit: true } : { view: true, edit: false }
   }
   return out
 }
@@ -51,7 +52,8 @@ export function normalizeMenuPermissions(input: any): MenuPermissions {
     if (v && typeof v === 'object') {
       out[key] = {
         view: v.view !== false,
-        edit: Boolean(v.edit)
+        edit: Boolean(v.edit),
+        ...(key === 'members' ? { roleEdit: v.roleEdit !== false } : {})
       }
     }
   }
@@ -63,7 +65,7 @@ export function menuPermissionsOf(user: { role?: string; permissions?: any } | n
   if (user.role === 'super_admin') {
     const all = defaultMenuPermissions()
     for (const key of ADMIN_MENU_KEYS) {
-      all[key] = { view: true, edit: true }
+      all[key] = key === 'members' ? { view: true, edit: true, roleEdit: true } : { view: true, edit: true }
     }
     return all
   }
@@ -73,6 +75,12 @@ export function menuPermissionsOf(user: { role?: string; permissions?: any } | n
 export function canViewMenu(user: { role?: string; permissions?: any } | null | undefined, key: AdminMenuKey): boolean {
   if (user?.role === 'super_admin') return true
   return menuPermissionsOf(user)[key]?.view !== false
+}
+
+// 회원 목록에서 회원 역할을 바꿀 수 있는지(회원역할수정허용). 총관리자는 항상 가능.
+export function canEditMemberRole(user: { role?: string; permissions?: any } | null | undefined): boolean {
+  if (user?.role === 'super_admin') return true
+  return menuPermissionsOf(user).members?.roleEdit !== false
 }
 
 export function canEditMenu(user: { role?: string; permissions?: any } | null | undefined, key: AdminMenuKey): boolean {

@@ -425,7 +425,9 @@ type RoleOption = { id: string; label: string }
 const grantableRoles = ref<RoleOption[]>([])
 
 function canEditRoleOf(u: MemberRow) {
-  return isDirectChildOfMe(u) && u.roleId !== 'super_admin' && grantableRoles.value.length > 0
+  // 회원역할수정허용 권한이 꺼진 부관리자는 역할을 바꿀 수 없다(총관리자는 항상 가능).
+  const roleEditAllowed = me.value?.role === 'super_admin' || (me.value as any)?.permissions?.menus?.members?.roleEdit !== false
+  return roleEditAllowed && isDirectChildOfMe(u) && u.roleId !== 'super_admin' && grantableRoles.value.length > 0
 }
 
 async function loadRoles() {

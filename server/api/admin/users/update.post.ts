@@ -3,7 +3,7 @@ import { requireAdmin, requireSuperAdmin } from '../../../utils/auth'
 import { getDb } from '../../../utils/db'
 import { supabaseAppDbEnabled, syncBalanceToSupabase, syncUserToSupabase } from '../../../utils/supa-appdb'
 import { getSupabaseAdminClient, supaSelectOne } from '../../../utils/supabase'
-import { canEditMenu } from '../../../utils/menu-permissions'
+import { canEditMenu, canEditMemberRole } from '../../../utils/menu-permissions'
 import { getRoleDefinition, canGrantRole } from '../../../utils/roles'
 import { logAdminAction } from '../../../utils/supa-log'
 
@@ -118,6 +118,9 @@ async function handleUpdate(event: any) {
         // 영업 조직 구조: 관리자 역할을 가진 계정은 "본인 코드로 가입한(직속)" 회원의 역할을
         // 자기보다 서열이 낮은 역할로만 부여/변경할 수 있다. 그 외(서열이 같거나 위, 또는
         // 직속이 아닌 경우)는 총관리자만 가능.
+        if (!canEditMemberRole(admin)) {
+          throw createError({ statusCode: 403, statusMessage: '회원 역할 수정 권한이 없습니다.' })
+        }
         const isDirectChild = String(current.referral_code || '').trim() === admin.username
         const allowedByRank = isDirectChild && (await canGrantRole(admin.role, body.role))
         if (!allowedByRank) {
@@ -231,7 +234,10 @@ async function handleUpdate(event: any) {
       assertNotLockedSuperAdmin()
       // 영업 조직 구조: 관리자 역할을 가진 계정은 "본인 코드로 가입한(직속)" 회원의 역할을
       // 자기보다 서열이 낮은 역할로만 부여/변경할 수 있다. 그 외는 총관리자만 가능.
-      const isDirectChild = String(current.referral_code || '').trim() === admin.username
+      if (!canEditMemberRole(admin)) {
+          throw createError({ statusCode: 403, statusMessage: '회원 역할 수정 권한이 없습니다.' })
+        }
+        const isDirectChild = String(current.referral_code || '').trim() === admin.username
       const allowedByRank = isDirectChild && (await canGrantRole(admin.role, body.role))
       if (!allowedByRank) {
         await requireSuperAdmin(event)
