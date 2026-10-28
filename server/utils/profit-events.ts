@@ -43,8 +43,8 @@ function rowToProfitEvent(row: any): ProfitEvent {
   return {
     id: Number(row.id),
     symbol: String(row.symbol).toUpperCase(),
-    // 리모콘2 이벤트(direction이 'R2:'로 시작)는 첫 목표가가 현재가보다 높으면 수익, 낮으면 손실로 본다.
-    direction: String(row.direction ?? '').startsWith('R2:') ? (Number(row.shocked_price) >= Number(row.base_price) ? 'up' : 'down') : dirRaw === 'up' ? 'up' : 'down',
+    // 리모콘2('R2:')/디자인차트('R3:') 이벤트는 목표가(디자인차트는 마지막 종가)가 현재가보다 높으면 수익, 낮으면 손실로 본다.
+    direction: /^R[23]:/.test(String(row.direction ?? '')) ? (Number(row.shocked_price) >= Number(row.base_price) ? 'up' : 'down') : dirRaw === 'up' ? 'up' : 'down',
     percent: Number(row.percent),
     basePrice: Number(row.base_price),
     shockedPrice: Number(row.shocked_price),
