@@ -20,7 +20,7 @@
           :key="`online-search-${locale}`"
         />
         <select v-model="roleFilter" class="rounded-md border border-[#173753] bg-[#041425] px-3 py-2 text-sm text-slate-200 outline-none">
-          <option value="">{{ t('유저권한', 'User Role') }}</option>
+          <option value="">{{ t('유저역할', 'User Role') }}</option>
           <option value="super_admin">{{ t('관리자', 'Admin') }}</option>
           <option value="admin">{{ t('부관리자', 'Sub Admin') }}</option>
           <option value="user">{{ t('회원', 'Member') }}</option>
