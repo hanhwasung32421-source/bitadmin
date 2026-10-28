@@ -50,7 +50,7 @@
         <table class="w-full text-[14px] text-slate-200">
           <thead class="border-b border-[#12314a] text-[13px] text-slate-400">
             <tr>
-              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('role')">{{ t('유저권한', 'Role') }}<span class="sort-icon">{{ sortArrow('role') || ' ⇅' }}</span></th>
+              <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('role')">{{ t('유저역할', 'Role') }}<span class="sort-icon">{{ sortArrow('role') || ' ⇅' }}</span></th>
               <th class="whitespace-nowrap px-[10px] py-3 text-left">{{ t('승인상태', 'Approval') }}</th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('username')">{{ t('아이디', 'Username') }}<span class="sort-icon">{{ sortArrow('username') || ' ⇅' }}</span></th>
               <th class="sortable-th cursor-pointer select-none whitespace-nowrap px-[10px] py-3 text-left" @click="toggleSort('name')">{{ t('회원이름', 'Name') }}<span class="sort-icon">{{ sortArrow('name') || ' ⇅' }}</span></th>
