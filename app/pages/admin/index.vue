@@ -530,7 +530,198 @@
         <span class="text-slate-200">{{ t('바꾸고 싶은 글자나 영역을 직접 클릭', 'click directly on the text or area you want to change') }}</span>{{ t('하면 오른쪽에 그 부분의 설정이 나타납니다.', ' and its settings will appear on the right.') }}
       </p>
 
-      <div class="mt-4 grid gap-6 lg:grid-cols-[1fr_320px]">
+      <!-- 카드 레이아웃 선택 -->
+      <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
+        <span class="text-slate-400">{{ t('카드 레이아웃', 'Card Layout') }}</span>
+        <button
+          type="button"
+          class="rounded-md px-3 py-1.5 ring-1"
+          :class="profitCardDraft.layout === 'breaker' ? 'bg-indigo-500/25 text-indigo-100 ring-indigo-400/40' : 'bg-white/5 text-slate-300 ring-white/10 hover:bg-white/10'"
+          @click="profitCardDraft.layout = 'breaker'"
+        >
+          {{ t('코인브레이커 카드', 'Coin Breaker Card') }}
+        </button>
+        <button
+          type="button"
+          class="rounded-md px-3 py-1.5 ring-1"
+          :class="profitCardDraft.layout === 'ktx' ? 'bg-indigo-500/25 text-indigo-100 ring-indigo-400/40' : 'bg-white/5 text-slate-300 ring-white/10 hover:bg-white/10'"
+          @click="profitCardDraft.layout = 'ktx'"
+        >
+          {{ t('예전 KTX 카드', 'Previous KTX Card') }}
+        </button>
+        <span class="text-xs text-slate-500">{{ t('저장하면 거래소 수익카드가 선택한 레이아웃으로 바뀝니다.', 'After saving, the exchange profit card uses the selected layout.') }}</span>
+      </div>
+
+      <!-- 코인브레이커 카드 편집: coinbreaker3에 저장돼 있던 위치/폰트/배경 값으로 시작한다 -->
+      <div v-if="profitCardDraft.layout === 'breaker'" class="mt-4 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div class="flex flex-wrap items-start justify-center gap-8 rounded-xl border border-white/10 bg-black/20 p-6" @click="cbSelected = 'card'">
+          <div v-for="v in CB_PREVIEW_VARIANTS" :key="v.key" class="flex flex-col items-center gap-3">
+            <p class="text-sm text-slate-400">{{ t(v.titleKo, v.titleEn) }}</p>
+            <ProfitCardBreaker
+              editable
+              :selected="cbSelected"
+              :cb="profitCardDraft.cb"
+              :roe="v.roe"
+              :pnl="v.pnl"
+              :won-number="v.won"
+              :side="v.side"
+              :symbol="v.symbol"
+              :leverage="v.leverage"
+              :entry-text="v.entry"
+              :exit-text="v.exit"
+              :positive-color="profitCardDraft.positiveColor"
+              :negative-color="profitCardDraft.negativeColor"
+              :bg-image="profitCardDraft.bgImage"
+              logo-src="/ktx-logo.png"
+              :labels="{ coin: t('코인', 'Coin'), lev: t('레버리지', 'Leverage'), entry: t('진입가격', 'Entry Price'), exit: t('종료가격', 'Exit Price'), won: t('원', 'KRW'), isolated: t('격리', 'Isolated') }"
+              @select="cbSelected = $event"
+              @click.stop
+            />
+          </div>
+          <p class="w-full text-center text-xs text-slate-500">
+            {{ t('바꾸고 싶은 글자를 클릭하면 오른쪽에 설정이 나타납니다. 선택한 뒤 방향키(←↑→↓)로 1px씩, Shift와 함께 누르면 10px씩 움직이고 Esc로 선택을 해제합니다. 빈 곳을 누르면 카드 전체 설정입니다.', 'Click a text to edit it on the right. With it selected, arrow keys move it 1px (Shift: 10px); Esc deselects. Click an empty area for the whole-card settings.') }}
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/20 p-4 lg:sticky lg:top-4 lg:self-start">
+          <div class="text-sm font-semibold text-indigo-300">{{ cbTitle }}</div>
+
+          <!-- 카드 전체 설정: 크기/모서리/배경/어둡기 -->
+          <template v-if="cbKind === 'card'">
+            <div v-for="f in [
+              { k: 'cardW', ko: '카드 가로', en: 'Card Width', min: 260, max: 600, step: 1, unit: 'px' },
+              { k: 'cardH', ko: '카드 세로', en: 'Card Height', min: 200, max: 700, step: 1, unit: 'px' },
+              { k: 'pad', ko: '안쪽 여백', en: 'Padding', min: 0, max: 80, step: 1, unit: 'px' },
+              { k: 'radius', ko: '모서리 둥글기', en: 'Corner Radius', min: 0, max: 60, step: 1, unit: 'px' },
+              { k: 'bgZoom', ko: '배경 확대/축소', en: 'Background Zoom', min: 0.5, max: 3, step: 0.01, unit: '배' },
+              { k: 'bgShiftX', ko: '배경 위치 X', en: 'Background X', min: -500, max: 500, step: 1, unit: 'px' },
+              { k: 'bgShiftY', ko: '배경 위치 Y', en: 'Background Y', min: -900, max: 900, step: 1, unit: 'px' },
+              { k: 'dim', ko: '배경 어둡기 (덮는 층 불투명도)', en: 'Background Darkness', min: 0, max: 100, step: 1, unit: '%' }
+            ]" :key="f.k" class="flex flex-col gap-1">
+              <div class="flex items-center justify-between text-xs text-slate-400">
+                <span>{{ t(f.ko, f.en) }}</span>
+                <span class="font-mono text-slate-300">{{ cbCardVal(f.k) }}{{ f.unit === '배' ? '×' : f.unit }}</span>
+              </div>
+              <input :value="cbCardVal(f.k)" type="range" :min="f.min" :max="f.max" :step="f.step" class="w-full accent-indigo-400" @input="cbCardSet(f.k, $event)" />
+            </div>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-slate-400">{{ t('어둡게 덮는 색', 'Darkness Color') }}</span>
+              <span class="flex items-center gap-2">
+                <input v-model="profitCardDraft.cb.dimColor" type="color" class="h-8 w-10 cursor-pointer rounded border border-white/10 bg-transparent p-0" />
+                <input v-model="profitCardDraft.cb.dimColor" type="text" class="w-full rounded border border-white/10 bg-black/30 px-2 py-1 font-mono text-xs text-slate-200 outline-none focus:border-cyan-400/40" />
+              </span>
+            </label>
+
+            <div class="flex flex-col gap-2 rounded-lg border border-white/10 bg-black/20 p-3">
+              <div class="text-xs font-semibold text-slate-300">{{ t('배경 그림', 'Background Image') }}</div>
+              <label class="flex items-center gap-2 text-xs text-slate-300">
+                <input v-model="profitCardDraft.cb.useDefaultBg" type="checkbox" class="h-4 w-4 accent-indigo-500" />
+                {{ t('기본 코인 배경 사용 (coinbreaker3 전체 이미지)', 'Use default coin background (full coin breaker image)') }}
+              </label>
+              <div class="flex flex-wrap items-center gap-2">
+                <label class="cursor-pointer rounded bg-white/10 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/15">
+                  {{ profitCardDraft.bgImage ? t('내 그림 바꾸기', 'Change My Image') : t('내 그림 넣기', 'Add My Image') }}
+                  <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden" @change="onBgImageFile" />
+                </label>
+                <button
+                  type="button"
+                  class="rounded bg-rose-500/15 px-3 py-1.5 text-xs text-rose-200 ring-1 ring-rose-400/30 hover:bg-rose-500/25 disabled:cursor-not-allowed disabled:opacity-40"
+                  :disabled="!profitCardDraft.bgImage"
+                  @click="clearBgImage"
+                >
+                  {{ t('내 그림 삭제', 'Remove My Image') }}
+                </button>
+              </div>
+              <p class="text-[11px] text-slate-500">{{ t('내 그림을 넣으면 기본 코인 배경 대신 그 그림이 깔립니다. 어둡기 슬라이더로 글자가 잘 보이게 조절하세요.', 'My image replaces the default background. Use the darkness slider to keep text readable.') }}</p>
+              <p v-if="bgImageError" class="text-xs text-rose-300">{{ bgImageError }}</p>
+            </div>
+          </template>
+
+          <!-- 선택한 글자/요소 설정 -->
+          <template v-else-if="cbItem">
+            <div class="rounded-lg border border-indigo-400/30 bg-indigo-400/5 p-3 text-xs text-slate-300">
+              <div class="font-mono text-slate-200">X {{ cbItem.x }}px · Y {{ cbItem.y }}px</div>
+              <div class="mt-2 flex items-center justify-center gap-3">
+                <div class="grid grid-cols-3 gap-1">
+                  <span />
+                  <button type="button" class="h-8 w-8 rounded bg-white/10 hover:bg-white/20" @click="cbNudge(0, -1)">▲</button>
+                  <span />
+                  <button type="button" class="h-8 w-8 rounded bg-white/10 hover:bg-white/20" @click="cbNudge(-1, 0)">◀</button>
+                  <button type="button" class="h-8 w-8 rounded bg-white/10 hover:bg-white/20" :title="t('이 항목 처음 값으로', 'Reset this item')" @click="cbResetItem">↺</button>
+                  <button type="button" class="h-8 w-8 rounded bg-white/10 hover:bg-white/20" @click="cbNudge(1, 0)">▶</button>
+                  <span />
+                  <button type="button" class="h-8 w-8 rounded bg-white/10 hover:bg-white/20" @click="cbNudge(0, 1)">▼</button>
+                  <span />
+                </div>
+                <label class="flex flex-col items-center gap-1 text-slate-400">
+                  {{ t('이동 간격(px)', 'Step (px)') }}
+                  <input v-model.number="cbStep" type="number" min="1" max="50" class="w-14 rounded border border-white/10 bg-black/30 px-2 py-1 text-center text-slate-200 outline-none" />
+                </label>
+              </div>
+              <div class="mt-3 grid grid-cols-2 gap-2">
+                <label class="flex flex-col gap-1 text-slate-400">
+                  X
+                  <input v-model.number="cbItem.x" type="number" step="1" class="rounded border border-white/10 bg-black/30 px-2 py-1 text-slate-200 outline-none" />
+                </label>
+                <label class="flex flex-col gap-1 text-slate-400">
+                  Y
+                  <input v-model.number="cbItem.y" type="number" step="1" class="rounded border border-white/10 bg-black/30 px-2 py-1 text-slate-200 outline-none" />
+                </label>
+              </div>
+            </div>
+
+            <label class="flex flex-col gap-1 text-xs text-slate-400">
+              {{
+                cbKind === 'divider' ? t('선 길이(px)', 'Line Length (px)')
+                : cbKind === 'sideBox' ? t('박스 가로(px)', 'Box Width (px)')
+                : cbKind === 'close' ? t('버튼 크기(px)', 'Button Size (px)')
+                : cbKind === 'title' ? t('로고 크기(글자 크기 기준 px)', 'Logo Size (px)')
+                : t('글자 크기(px, 비우면 기본)', 'Font Size (px, empty = default)')
+              }}
+              <input :value="cbItem.size ?? ''" type="number" min="0" step="1" class="rounded border border-white/10 bg-black/30 px-2 py-1 text-slate-200 outline-none" @input="cbSetNum('size', $event)" />
+            </label>
+            <label v-if="cbKind === 'sideBox'" class="flex flex-col gap-1 text-xs text-slate-400">
+              {{ t('박스 세로(px)', 'Box Height (px)') }}
+              <input :value="cbItem.height ?? ''" type="number" min="0" step="1" class="rounded border border-white/10 bg-black/30 px-2 py-1 text-slate-200 outline-none" @input="cbSetNum('height', $event)" />
+            </label>
+            <label v-if="cbKind === 'text' || cbKind === 'divider' || cbKind === 'sideBox'" class="flex flex-col gap-1 text-xs text-slate-400">
+              {{
+                cbKind === 'divider' ? t('선 굵기(px)', 'Line Thickness (px)')
+                : cbKind === 'sideBox' ? t('테두리 굵기(px)', 'Border Thickness (px)')
+                : t('글씨 굵기(100~900, 비우면 기본)', 'Font Weight (100-900, empty = default)')
+              }}
+              <input :value="cbItem.weight ?? ''" type="number" min="0" step="1" class="rounded border border-white/10 bg-black/30 px-2 py-1 text-slate-200 outline-none" @input="cbSetNum('weight', $event)" />
+            </label>
+            <label v-if="cbKind === 'text'" class="flex flex-col gap-1 text-xs text-slate-400">
+              {{ t('자간(px, 비우면 기본)', 'Letter Spacing (px)') }}
+              <input :value="cbItem.tracking ?? ''" type="number" step="0.1" class="rounded border border-white/10 bg-black/30 px-2 py-1 text-slate-200 outline-none" @input="cbSetNum('tracking', $event)" />
+            </label>
+            <label class="flex flex-col gap-1 text-xs text-slate-400">
+              {{ t('투명도(0~1, 비우면 기본)', 'Opacity (0-1, empty = default)') }}
+              <input :value="cbItem.opacity ?? ''" type="number" min="0" max="1" step="0.05" class="rounded border border-white/10 bg-black/30 px-2 py-1 text-slate-200 outline-none" @input="cbSetNum('opacity', $event)" />
+            </label>
+            <label v-if="cbKind !== 'title'" class="flex flex-col gap-1">
+              <span class="text-xs text-slate-400">{{ t('색상 (비우면 기본)', 'Color (empty = default)') }}</span>
+              <span class="flex items-center gap-2">
+                <input :value="cbItem.color || '#ffffff'" type="color" class="h-8 w-10 cursor-pointer rounded border border-white/10 bg-transparent p-0" @input="cbSetColor(($event.target as HTMLInputElement).value)" />
+                <input :value="cbItem.color || ''" type="text" placeholder="#rrggbb" class="w-full rounded border border-white/10 bg-black/30 px-2 py-1 font-mono text-xs text-slate-200 outline-none focus:border-cyan-400/40" @input="cbSetColor(($event.target as HTMLInputElement).value.trim() || null)" />
+                <button type="button" class="rounded bg-white/10 px-2 py-1 text-[11px] hover:bg-white/15" @click="cbSetColor(null)">{{ t('기본', 'Default') }}</button>
+              </span>
+            </label>
+            <label v-if="cbKind === 'text'" class="flex flex-col gap-1 text-xs text-slate-400">
+              {{ t('폰트', 'Font') }}
+              <select :value="cbItem.font || 'inherit'" class="rounded border border-white/10 bg-black/30 px-2 py-1.5 text-sm text-slate-200 outline-none" @change="cbSetFont(($event.target as HTMLSelectElement).value)">
+                <option v-for="f in CB_FONT_OPTIONS" :key="f.value" :value="f.value">{{ t(f.ko, f.en) }}</option>
+              </select>
+            </label>
+            <button type="button" class="rounded bg-white/10 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/15" @click="cbResetItem">{{ t('이 항목을 coinbreaker3 값으로 되돌리기', 'Reset this item to the coin breaker value') }}</button>
+          </template>
+
+          <button type="button" class="mt-1 rounded bg-white/5 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/10" @click="cbResetAll">{{ t('코인브레이커 카드 전체를 처음 값(coinbreaker3)으로', 'Reset the whole card to coin breaker values') }}</button>
+        </div>
+      </div>
+
+      <div v-if="profitCardDraft.layout === 'ktx'" class="mt-4 grid gap-6 lg:grid-cols-[1fr_320px]">
         <!-- 미리보기(클릭해서 편집) -->
         <div class="flex flex-wrap items-start justify-center gap-8 rounded-xl border border-white/10 bg-black/20 p-6">
           <div v-for="v in PROFIT_CARD_PREVIEW_VARIANTS" :key="v.key" class="flex flex-col items-center gap-3">
@@ -1117,6 +1308,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolveCb, CB_ITEM_LABELS, CB_FONT_OPTIONS, CB_DEFAULTS, type CbConfig, type CbItemKey } from '~/utils/cardBreaker'
 definePageMeta({ middleware: ['admin', 'super-admin'] })
 const { t, locale } = useLocale()
 const { me, refresh } = useMe()
@@ -1854,6 +2046,8 @@ type ProfitCardStyle = {
   bgImageOpacity: number
   bgFilterColor: string
   bgFilterOpacity: number
+  layout: 'breaker' | 'ktx'
+  cb: CbConfig
   positiveColor: string
   negativeColor: string
   logoFontSize: number
@@ -1893,6 +2087,8 @@ const DEFAULT_PROFIT_CARD_STYLE: ProfitCardStyle = {
   bgImageOpacity: 35,
   bgFilterColor: '#000000',
   bgFilterOpacity: 0,
+  layout: 'breaker',
+  cb: resolveCb(null),
   positiveColor: '#22c55e',
   negativeColor: '#ef4444',
   logoFontSize: 16,
@@ -2121,7 +2317,7 @@ const PROFIT_CARD_PREVIEW_VARIANTS = [
     exit: '175100.00'
   }
 ]
-const profitCardDraft = reactive<ProfitCardStyle>({ ...DEFAULT_PROFIT_CARD_STYLE, offsets: {} })
+const profitCardDraft = reactive<ProfitCardStyle>({ ...DEFAULT_PROFIT_CARD_STYLE, offsets: {}, cb: resolveCb(null) })
 const profitCardSaving = ref(false)
 const profitCardError = ref<string | null>(null)
 const profitCardMsg = ref<string | null>(null)
@@ -2176,9 +2372,77 @@ async function onBgImageFile(e: Event) {
   }
 }
 
+// ───────── 코인브레이커 레이아웃 편집 ─────────
+const CB_PREVIEW_VARIANTS = [
+  { key: 'win', titleKo: '수익일 때', titleEn: 'Profit', roe: 36.09, pnl: 4850.12, won: '6,438,948', side: 'long' as const, symbol: 'SAMSUNGUSDT', leverage: 100, entry: '168.41', exit: '169.02' },
+  { key: 'loss', titleKo: '손실일 때', titleEn: 'Loss', roe: -8.21, pnl: -240.1, won: '320,000', side: 'short' as const, symbol: 'SKHYNIXUSDT', leverage: 100, entry: '182.30', exit: '183.80' }
+]
+const cbSelected = ref<CbItemKey | 'card'>('card')
+const cbStep = ref(1)
+const cbItem = computed(() => (cbSelected.value === 'card' ? null : profitCardDraft.cb.items[cbSelected.value]))
+const cbTitle = computed(() => (cbSelected.value === 'card' ? t('카드 전체', 'Whole Card') : t(CB_ITEM_LABELS[cbSelected.value].ko, CB_ITEM_LABELS[cbSelected.value].en)))
+const cbKind = computed<'card' | 'title' | 'close' | 'divider' | 'sideBox' | 'text'>(() => {
+  const k = cbSelected.value
+  if (k === 'card') return 'card'
+  if (k === 'title' || k === 'close' || k === 'divider' || k === 'sideBox') return k
+  return 'text'
+})
+function cbNudge(dx: number, dy: number) {
+  const it = cbItem.value
+  if (!it) return
+  const step = Math.max(1, Math.min(50, Math.round(Number(cbStep.value) || 1)))
+  it.x = Math.round(((Number(it.x) || 0) + dx * step) * 10) / 10
+  it.y = Math.round(((Number(it.y) || 0) + dy * step) * 10) / 10
+}
+function cbSetNum(prop: 'size' | 'height' | 'weight' | 'tracking' | 'opacity', e: Event) {
+  const it = cbItem.value as any
+  if (!it) return
+  const raw = (e.target as HTMLInputElement).value
+  it[prop] = raw === '' ? null : Number(raw)
+}
+function cbSetColor(v: string | null) {
+  const it = cbItem.value
+  if (it) it.color = v
+}
+function cbSetFont(v: string) {
+  const it = cbItem.value
+  if (it) it.font = v === 'inherit' ? null : v
+}
+function cbResetItem() {
+  const k = cbSelected.value
+  if (k === 'card') return
+  profitCardDraft.cb.items[k] = JSON.parse(JSON.stringify(CB_DEFAULTS.items[k]))
+}
+function cbCardVal(k: string) {
+  return (profitCardDraft.cb as any)[k]
+}
+function cbCardSet(k: string, e: Event) {
+  const n = Number((e.target as HTMLInputElement).value)
+  if (Number.isFinite(n)) (profitCardDraft.cb as any)[k] = n
+}
+function cbResetAll() {
+  profitCardDraft.cb = resolveCb(null)
+}
+function onCbKey(e: KeyboardEvent) {
+  if (activeTab.value !== 'profitCard' || profitCardDraft.layout !== 'breaker' || cbSelected.value === 'card') return
+  const el = e.target as HTMLElement | null
+  if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT')) return
+  const big = e.shiftKey ? 10 : 1
+  if (e.key === 'ArrowUp') cbNudge(0, -big)
+  else if (e.key === 'ArrowDown') cbNudge(0, big)
+  else if (e.key === 'ArrowLeft') cbNudge(-big, 0)
+  else if (e.key === 'ArrowRight') cbNudge(big, 0)
+  else if (e.key === 'Escape') cbSelected.value = 'card'
+  else return
+  e.preventDefault()
+}
+onMounted(() => window.addEventListener('keydown', onCbKey))
+onBeforeUnmount(() => window.removeEventListener('keydown', onCbKey))
+
 function resetProfitCardStyle() {
-  Object.assign(profitCardDraft, DEFAULT_PROFIT_CARD_STYLE, { offsets: {} })
+  Object.assign(profitCardDraft, DEFAULT_PROFIT_CARD_STYLE, { offsets: {}, cb: resolveCb(null) })
   selectedOffsetKey.value = null
+  cbSelected.value = 'card'
 }
 
 async function saveProfitCardStyle() {
@@ -2186,7 +2450,7 @@ async function saveProfitCardStyle() {
   profitCardError.value = null
   profitCardMsg.value = null
   try {
-    await $fetch('/api/admin/settings/misc', { method: 'POST', body: { profitCardStyle: { ...profitCardDraft, offsets: JSON.parse(JSON.stringify(profitCardDraft.offsets || {})) } } })
+    await $fetch('/api/admin/settings/misc', { method: 'POST', body: { profitCardStyle: { ...profitCardDraft, offsets: JSON.parse(JSON.stringify(profitCardDraft.offsets || {})), cb: JSON.parse(JSON.stringify(profitCardDraft.cb)) } } })
     profitCardMsg.value = t('저장되었습니다.', 'Saved.')
   } catch (e: any) {
     profitCardError.value = e?.data?.statusMessage || t('저장 실패', 'Save failed')
@@ -2264,7 +2528,7 @@ async function loadMiscSettings() {
       mainNavDraft.hidden = data.mainNavHidden.filter((k: string) => known.has(k as MainNavKey))
     }
     if (data.profitCardStyle && typeof data.profitCardStyle === 'object') {
-      Object.assign(profitCardDraft, DEFAULT_PROFIT_CARD_STYLE, data.profitCardStyle, { offsets: { ...(data.profitCardStyle.offsets || {}) } })
+      Object.assign(profitCardDraft, DEFAULT_PROFIT_CARD_STYLE, data.profitCardStyle, { offsets: { ...(data.profitCardStyle.offsets || {}) }, cb: resolveCb((data.profitCardStyle as any).cb) })
     }
   } catch {
     // 기본값 유지
