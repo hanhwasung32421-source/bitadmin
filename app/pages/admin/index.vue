@@ -572,14 +572,13 @@
               :positive-color="profitCardDraft.positiveColor"
               :negative-color="profitCardDraft.negativeColor"
               :bg-image="profitCardDraft.bgImage"
-              logo-src="/ktx-logo.png"
-              :labels="{ coin: t('코인', 'Coin'), lev: t('레버리지', 'Leverage'), entry: t('진입가격', 'Entry Price'), exit: t('종료가격', 'Exit Price'), won: t('원', 'KRW'), isolated: t('격리', 'Isolated') }"
               @select="cbSelected = $event"
+              @edit="cbEditText"
               @click.stop
             />
           </div>
           <p class="w-full text-center text-xs text-slate-500">
-            {{ t('바꾸고 싶은 글자를 클릭하면 오른쪽에 설정이 나타납니다. 선택한 뒤 방향키(←↑→↓)로 1px씩, Shift와 함께 누르면 10px씩 움직이고 Esc로 선택을 해제합니다. 빈 곳을 누르면 카드 전체 설정입니다.', 'Click a text to edit it on the right. With it selected, arrow keys move it 1px (Shift: 10px); Esc deselects. Click an empty area for the whole-card settings.') }}
+            {{ t('글자를 클릭하면 오른쪽에 설정이 나타나고, 더블클릭하면 그 자리에서 글자를 고칠 수 있습니다(Enter 저장, Esc 취소). 선택한 뒤 방향키(←↑→↓)로 1px씩, Shift와 함께 누르면 10px씩 움직이고 Esc로 선택을 해제합니다. 빈 곳을 누르면 카드 전체 설정입니다.', 'Click a text to open its settings; double-click to edit the text in place (Enter saves, Esc cancels). With it selected, arrow keys move it 1px (Shift: 10px); Esc deselects. Click an empty area for the whole-card settings.') }}
           </p>
         </div>
 
@@ -612,6 +611,21 @@
               </span>
             </label>
 
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-slate-400">{{ t('그 위에 덮는 색 (코인브레이커 화면의 초록빛)', 'Tint Color (over the darkness)') }}</span>
+              <span class="flex items-center gap-2">
+                <input v-model="profitCardDraft.cb.tintColor" type="color" class="h-8 w-10 cursor-pointer rounded border border-white/10 bg-transparent p-0" />
+                <input v-model="profitCardDraft.cb.tintColor" type="text" class="w-full rounded border border-white/10 bg-black/30 px-2 py-1 font-mono text-xs text-slate-200 outline-none focus:border-cyan-400/40" />
+              </span>
+            </label>
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center justify-between text-xs text-slate-400">
+                <span>{{ t('위에 덮는 색 불투명도', 'Tint Opacity') }}</span>
+                <span class="font-mono text-slate-300">{{ profitCardDraft.cb.tint }}%</span>
+              </div>
+              <input :value="profitCardDraft.cb.tint" type="range" min="0" max="100" step="1" class="w-full accent-indigo-400" @input="cbCardSet('tint', $event)" />
+            </div>
+
             <div class="flex flex-col gap-2 rounded-lg border border-white/10 bg-black/20 p-3">
               <div class="text-xs font-semibold text-slate-300">{{ t('배경 그림', 'Background Image') }}</div>
               <label class="flex items-center gap-2 text-xs text-slate-300">
@@ -639,6 +653,14 @@
 
           <!-- 선택한 글자/요소 설정 -->
           <template v-else-if="cbItem">
+            <div v-if="cbTextKeys.length" class="flex flex-col gap-2 rounded-lg border border-white/10 bg-black/20 p-3">
+              <div class="text-xs font-semibold text-slate-300">{{ t('글자 내용 (카드를 더블클릭해도 수정됩니다)', 'Text (double-click the card to edit)') }}</div>
+              <label v-for="tk in cbTextKeys" :key="tk" class="flex flex-col gap-1 text-xs text-slate-400">
+                {{ t(CB_TEXT_LABELS[tk].ko, CB_TEXT_LABELS[tk].en) }}
+                <input :value="profitCardDraft.cb.texts[tk]" type="text" maxlength="30" class="rounded border border-white/10 bg-black/30 px-2 py-1 text-slate-200 outline-none" @input="cbEditText(tk, ($event.target as HTMLInputElement).value)" />
+              </label>
+              <p v-if="cbSelected === 'lev' || cbSelected === 'profit' || cbSelected === 'entry' || cbSelected === 'exit'" class="text-[11px] text-slate-500">{{ t('숫자는 실제 값으로 자동 입력되고, 여기서는 앞뒤 글자만 바꿉니다.', 'Numbers are filled in automatically; only the surrounding text is edited here.') }}</p>
+            </div>
             <div class="rounded-lg border border-indigo-400/30 bg-indigo-400/5 p-3 text-xs text-slate-300">
               <div class="font-mono text-slate-200">X {{ cbItem.x }}px · Y {{ cbItem.y }}px</div>
               <div class="mt-2 flex items-center justify-center gap-3">
@@ -1308,7 +1330,7 @@
 </template>
 
 <script setup lang="ts">
-import { resolveCb, CB_ITEM_LABELS, CB_FONT_OPTIONS, CB_DEFAULTS, type CbConfig, type CbItemKey } from '~/utils/cardBreaker'
+import { resolveCb, cbTextKeyFor, CB_ITEM_LABELS, CB_TEXT_LABELS, CB_FONT_OPTIONS, CB_DEFAULTS, type CbConfig, type CbItemKey, type CbTextKey } from '~/utils/cardBreaker'
 definePageMeta({ middleware: ['admin', 'super-admin'] })
 const { t, locale } = useLocale()
 const { me, refresh } = useMe()
@@ -2374,18 +2396,29 @@ async function onBgImageFile(e: Event) {
 
 // ───────── 코인브레이커 레이아웃 편집 ─────────
 const CB_PREVIEW_VARIANTS = [
-  { key: 'win', titleKo: '수익일 때', titleEn: 'Profit', roe: 36.09, pnl: 4850.12, won: '6,438,948', side: 'long' as const, symbol: 'SAMSUNGUSDT', leverage: 100, entry: '168.41', exit: '169.02' },
-  { key: 'loss', titleKo: '손실일 때', titleEn: 'Loss', roe: -8.21, pnl: -240.1, won: '320,000', side: 'short' as const, symbol: 'SKHYNIXUSDT', leverage: 100, entry: '182.30', exit: '183.80' }
+  { key: 'win', titleKo: '수익일 때', titleEn: 'Profit', roe: 36.09, pnl: 4850.12, won: '6,438,948', side: 'long' as const, symbol: 'SAMSUNGUSDT', leverage: 100, entry: '168.41220', exit: '169.02004' },
+  { key: 'loss', titleKo: '손실일 때', titleEn: 'Loss', roe: -8.21, pnl: -240.1, won: '320,000', side: 'short' as const, symbol: 'SAMSUNGUSDT', leverage: 100, entry: '169.02004', exit: '168.41220' }
 ]
 const cbSelected = ref<CbItemKey | 'card'>('card')
 const cbStep = ref(1)
 const cbItem = computed(() => (cbSelected.value === 'card' ? null : profitCardDraft.cb.items[cbSelected.value]))
 const cbTitle = computed(() => (cbSelected.value === 'card' ? t('카드 전체', 'Whole Card') : t(CB_ITEM_LABELS[cbSelected.value].ko, CB_ITEM_LABELS[cbSelected.value].en)))
-const cbKind = computed<'card' | 'title' | 'close' | 'divider' | 'sideBox' | 'text'>(() => {
+const cbKind = computed<'card' | 'close' | 'divider' | 'sideBox' | 'text'>(() => {
   const k = cbSelected.value
   if (k === 'card') return 'card'
-  if (k === 'title' || k === 'close' || k === 'divider' || k === 'sideBox') return k
+  if (k === 'close' || k === 'divider' || k === 'sideBox') return k
   return 'text'
+})
+// 카드 글자 내용 수정(더블클릭 또는 오른쪽 입력칸)
+function cbEditText(key: CbTextKey, value: string) {
+  profitCardDraft.cb.texts[key] = value
+}
+const cbTextKeys = computed<CbTextKey[]>(() => {
+  const k = cbSelected.value
+  if (k === 'card') return []
+  if (k === 'side') return ['long', 'short']
+  const tk = cbTextKeyFor(k, 'long')
+  return tk ? [tk] : []
 })
 function cbNudge(dx: number, dy: number) {
   const it = cbItem.value
