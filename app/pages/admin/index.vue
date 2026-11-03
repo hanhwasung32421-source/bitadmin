@@ -621,7 +621,7 @@
               <div class="flex flex-wrap items-center gap-2">
                 <label class="cursor-pointer rounded bg-white/10 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/15">
                   {{ profitCardDraft.bgImage ? t('내 그림 바꾸기', 'Change My Image') : t('내 그림 넣기', 'Add My Image') }}
-                  <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden" @change="onBgImageFile" />
+                  <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden" @change="cbPickBgFile" />
                 </label>
                 <button
                   type="button"
@@ -632,7 +632,7 @@
                   {{ t('내 그림 삭제', 'Remove My Image') }}
                 </button>
               </div>
-              <p class="text-[11px] text-slate-500">{{ t('내 그림을 넣으면 기본 코인 배경 대신 그 그림이 깔립니다. 어둡기 슬라이더로 글자가 잘 보이게 조절하세요.', 'My image replaces the default background. Use the darkness slider to keep text readable.') }}</p>
+              <p class="text-[11px] text-slate-500">{{ t('기본 코인 배경을 끄면 내 그림이 깔립니다(그림을 넣으면 자동으로 꺼집니다). 어둡기 슬라이더로 글자가 잘 보이게 조절하세요.', 'Turn the default background off to show my image (adding an image turns it off automatically). Use the darkness slider to keep text readable.') }}</p>
               <p v-if="bgImageError" class="text-xs text-rose-300">{{ bgImageError }}</p>
             </div>
           </template>
@@ -2412,6 +2412,11 @@ function cbResetItem() {
   const k = cbSelected.value
   if (k === 'card') return
   profitCardDraft.cb.items[k] = JSON.parse(JSON.stringify(CB_DEFAULTS.items[k]))
+}
+// 내 그림을 넣으면 기본 코인 배경을 끄고 그 그림을 쓴다.
+async function cbPickBgFile(e: Event) {
+  await onBgImageFile(e)
+  if (profitCardDraft.bgImage) profitCardDraft.cb.useDefaultBg = false
 }
 function cbCardVal(k: string) {
   return (profitCardDraft.cb as any)[k]
