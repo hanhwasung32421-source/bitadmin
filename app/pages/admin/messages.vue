@@ -5,7 +5,7 @@
         <h1 class="text-xl font-semibold">{{ t('고객센터', 'Support') }}</h1>
         <p class="mt-1 text-sm text-slate-400">{{ t('전체회원 또는 선택 회원에게 쪽지를 보내고 답장을 확인합니다.', 'Send messages to all or selected members and view replies.') }}</p>
       </div>
-      <button class="rounded-md bg-white/10 px-3 py-2 text-sm hover:bg-white/15" @click="activeTab === 'members' ? loadAll() : loadGuestThreads()">{{ t('새로고침', 'Refresh') }}</button>
+      <button class="rounded-md bg-white/10 px-3 py-2 text-sm hover:bg-white/15" @click="activeTab === 'guests' ? loadGuestThreads() : loadAll()">{{ t('새로고침', 'Refresh') }}</button>
     </div>
 
     <div class="flex gap-1 border-b border-white/10">
@@ -26,10 +26,18 @@
         {{ t('비회원 상담', 'Guest Inquiries') }}
         <span v-if="guestUnreadTotal" class="ml-1.5 rounded-full bg-amber-400 px-2 py-0.5 text-[12px] font-bold text-slate-900">{{ guestUnreadTotal }}</span>
       </button>
+      <button
+        type="button"
+        class="border-b-2 px-4 py-2 text-sm font-medium transition"
+        :class="activeTab === 'compose' ? 'border-cyan-400 text-white' : 'border-transparent text-slate-400 hover:text-slate-200'"
+        @click="activeTab = 'compose'"
+      >
+        {{ t('쪽지쓰기', 'Compose') }}
+      </button>
     </div>
 
-    <div v-show="activeTab === 'members'" class="grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
-      <section class="rounded-2xl border border-white/10 bg-white/5 p-5">
+    <div v-show="activeTab === 'compose'">
+      <section class="max-w-4xl rounded-2xl border border-white/10 bg-white/5 p-5">
         <div class="flex items-center justify-between gap-3">
           <h2 class="text-base font-semibold">{{ t('쪽지쓰기', 'Compose Message') }}</h2>
           <label class="flex items-center gap-2 text-xs text-slate-300">
@@ -122,7 +130,9 @@
         <p v-if="sendError" class="mt-3 text-sm text-rose-300">{{ sendError }}</p>
         <p v-if="sendMessageText" class="mt-3 text-sm text-emerald-300">{{ sendMessageText }}</p>
       </section>
+    </div>
 
+    <div v-show="activeTab === 'members'">
       <section class="rounded-2xl border border-white/10 bg-white/5 p-5">
         <div class="flex items-center justify-between gap-3">
           <h2 class="text-base font-semibold">{{ t('대화 목록', 'Conversation List') }}</h2>
@@ -438,7 +448,7 @@ const canManageMessages = computed(() => {
 // 따라 "관리자에게 온 쪽지"(운영자가 아닌 나) / "내 아이디로 온 쪽지"(내가 곧 운영자)를 구분해서 보여준다.
 const isOperator = ref(false)
 
-const activeTab = ref<'members' | 'guests'>('members')
+const activeTab = ref<'members' | 'guests' | 'compose'>('members')
 const guestThreads = ref<GuestThreadSummary[]>([])
 const activeGuestThread = ref<GuestThreadSummary | null>(null)
 const guestMessages = ref<GuestMessageItem[]>([])
